@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "os2mo-amqp-trigger-example"
+version = "0.0.1"
+description = "Example implementation of an OS2mo AMQP Trigger receiver"
+authors = ["Magenta <info@magenta.dk>"]
+license = "MPL-2.0"
+readme = "README.md"
+homepage = "https://magenta.dk/"
+repository = "https://git.magenta.dk/rammearkitektur/os2mo-amqp-trigger-example"
+keywords = ["os2mo", "amqp"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+click = "^8.0.1"
+aio-pika = "^6.8.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "6.2.3"
+black = "21.4b2"
+flake8 = "3.9.1"
+mypy = "0.812"
+reorder-python-imports = "^2.5.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

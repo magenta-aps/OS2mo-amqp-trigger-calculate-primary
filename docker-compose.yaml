@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
+
+version: "3.9"
+services:
+  consumer:
+    build: .
+    container_name: amqp_trigger_example
+    environment:
+      AMQP_PASSWORD: guest
+      ROUTING_KEY: org_unit.address.update:employee.address.update
