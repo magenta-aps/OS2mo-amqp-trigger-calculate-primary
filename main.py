@@ -29,7 +29,7 @@ async def main(
     username: str,
     password: str,
     exchange: str,
-    routing_key: List[str],
+    routing_keys: List[str],
 ) -> None:
     print(f"Establishing AMQP connection to amqp://{username}:xxxxx@{host}:{port}/")
     connection = await connect(f"amqp://{username}:{password}@{host}:{port}/")
@@ -46,7 +46,7 @@ async def main(
     print(f"Declaring unique message queue: {queue_name}")
     queue = await channel.declare_queue(queue_name, durable=False)
 
-    for key in routing_key:
+    for key in routing_keys:
         print(f"Binding routing-key: {key}")
         await queue.bind(topic_logs_exchange, routing_key=key)
 
@@ -88,9 +88,10 @@ async def main(
     show_default=True,
 )
 @click.option(
+    "routing_keys",
     "--routing-key",
-    help="AMQP routing keys",
     multiple=True,
+    help="AMQP routing keys",
 )
 def cli(**kwargs: Any) -> None:
     loop = asyncio.get_event_loop()

@@ -8,5 +8,6 @@ services:
     build: .
     container_name: amqp_trigger_example
     environment:
+      AMQP_HOST: 192.168.1.234
       AMQP_PASSWORD: guest
-      ROUTING_KEY: org_unit.address.update:employee.address.update
+      AMQP_ROUTING_KEYS: org_unit.address.update employee.address.update
