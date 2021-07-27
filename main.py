@@ -1,5 +1,9 @@
+# SPDX-FileCopyrightText: 2019-2020 Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import asyncio
 import json
+from typing import Any
 from typing import List
 from uuid import uuid4
 
@@ -11,10 +15,12 @@ from aio_pika import IncomingMessage
 
 def on_message(message: IncomingMessage) -> None:
     with message.process():
-        print(json.dumps({
-            "routing-key": message.routing_key,
-            "body": json.loads(message.body)
-        }, indent=4))
+        print(
+            json.dumps(
+                {"routing-key": message.routing_key, "body": json.loads(message.body)},
+                indent=4,
+            )
+        )
 
 
 async def main(
@@ -36,7 +42,7 @@ async def main(
     topic_logs_exchange = await channel.declare_exchange(exchange, ExchangeType.TOPIC)
 
     # Declaring queue
-    queue_name = 'os2mo-consumer-' + str(uuid4())
+    queue_name = "os2mo-consumer-" + str(uuid4())
     print(f"Declaring unique message queue: {queue_name}")
     queue = await channel.declare_queue(queue_name, durable=False)
 
@@ -86,7 +92,7 @@ async def main(
     help="AMQP routing keys",
     multiple=True,
 )
-def cli(**kwargs):
+def cli(**kwargs: Any) -> None:
     loop = asyncio.get_event_loop()
     loop.create_task(main(**kwargs))
     loop.run_forever()
