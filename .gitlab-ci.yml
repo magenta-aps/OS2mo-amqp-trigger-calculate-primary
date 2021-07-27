@@ -89,4 +89,4 @@ Test:
   tags:
     - docker
   script:
-    - python main.py --dry-run
+    - python main.py --help
