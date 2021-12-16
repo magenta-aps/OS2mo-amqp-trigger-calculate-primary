@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MPL-2.0
 [tool.poetry]
 name = "os2mo-amqp-trigger-example"
-version = "0.0.2"
+version = "1.0.0"
 description = "Example implementation of an OS2mo AMQP Trigger receiver"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
