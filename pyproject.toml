@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2019-2020 Magenta ApS
+# SPDX-License-Identifier: MPL-2.0
 [tool.poetry]
 name = "os2mo-amqp-trigger-example"
 version = "0.0.2"
