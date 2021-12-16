@@ -1,34 +1,35 @@
 # SPDX-FileCopyrightText: 2019-2020 Magenta ApS
 # SPDX-License-Identifier: MPL-2.0
 
-# For `docker push` to work, the following envionment variables have to set in
-# the Gitlab UI.
-# RELEASE_REGISTRY_USER
-# RELEASE_REGISTRY_PASSWORD
-
 stages:
   - lint
-  # build stage is not blocked by lint stage, as we have a DAG:
-  # https://docs.gitlab.com/ee/ci/directed_acyclic_graph/index.html
   - build
   - test
   - release
 
+
 variables:
   IMAGE_SHA: ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}
 
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PRE_COMMIT_HOME: "$CI_PROJECT_DIR/.cache/pre-commit"
-
-cache:
-  key: "${CI_JOB_NAME}"
-  paths:
-    - .venv/
-    - .cache/pip
-    - .cache/pre-commit
+  RELEASE_REGISTRY: docker.io
+  RELEASE_REGISTRY_IMAGE: index.docker.io/magentaaps/os2mo-amqp-trigger-example
 
 
-# Only run pipeline when pushing a tag or a branch.
+include:
+  - project: 'labs/salt-automation'
+    ref: 'master'
+    file: '/gitlab-ci-templates/common/pre-commit.v1.yml'
+  - project: 'labs/salt-automation'
+    ref: 'master'
+    file: '/gitlab-ci-templates/common/docker-build.v1.yml'
+  - project: 'labs/salt-automation'
+    ref: 'master'
+    file: '/gitlab-ci-templates/common/autopub.v1.yml'
+  - project: 'labs/salt-automation'
+    ref: 'master'
+    file: '/gitlab-ci-templates/common/docker-release.v1.yml'
+
+
 # This is a workaround for a bug causing detached pipelines on MRs
 # See: https://gitlab.com/gitlab-org/gitlab/-/issues/34756
 #      https://docs.gitlab.com/ee/ci/yaml/#workflowrules-templates
@@ -36,57 +37,16 @@ workflow:
   rules:
     - if: $CI_COMMIT_TAG
     - if: $CI_COMMIT_BRANCH
-
-
-# Lint stage
-#############
-
-.lint-default: &lint-default
-  stage: lint
-  needs: []
-  tags:
-    - docker
-  image: python:3.8
-  before_script:
-    - pip install poetry pre-commit
-    - poetry --version
-    - poetry config virtualenvs.in-project true
-    - poetry install -vv
-    - pre-commit install
-
-lint-all:
-  <<: *lint-default
-  script:
-    - pre-commit run --all-files
-
-# Build stage
-#############
-Build:
-  stage: build
-  needs: []
-  image:
-    # We use kaniko v0.16.0 as both v0.17.0, v0.17.1, v0.18.0 and v0.19.0 contains fatal bugs.
-    name: gcr.io/kaniko-project/executor:v1.5.2-debug
-    entrypoint: [""]
-  tags:
-    - docker
-  script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor
-      --cache
-      --context=$CI_PROJECT_DIR
-      --dockerfile=$CI_PROJECT_DIR/Dockerfile
-      --destination=${IMAGE_SHA}
+    - if: $CI_MERGE_REQUEST_IID
 
 
 # Test stage
 ############
 Test:
   stage: test
-  needs: ["Build"]
   image:
     name: ${IMAGE_SHA}
-  tags:
-    - docker
   script:
     - python main.py --help
+  tags:
+    - docker
