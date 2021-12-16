@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2019-2020 Magenta ApS
 # SPDX-License-Identifier: MPL-2.0
 [tool.poetry]
-name = "os2mo-amqp-trigger-example"
-version = "1.0.0"
-description = "Example implementation of an OS2mo AMQP Trigger receiver"
+name = "os2mo-amqp-trigger-calculate-primary"
+version = "0.0.2"
+description = "OS2mo AMQP Trigger for recalculating primary"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
 readme = "README.md"
 homepage = "https://magenta.dk/"
-repository = "https://git.magenta.dk/rammearkitektur/os2mo-amqp-trigger-example"
+repository = "https://git.magenta.dk/rammearkitektur/os2mo-triggers/os2mo-amqp-trigger-calculate-primary"
 keywords = ["os2mo", "amqp"]
 
 [tool.poetry.dependencies]

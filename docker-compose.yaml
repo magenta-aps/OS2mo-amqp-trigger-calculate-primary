@@ -6,7 +6,7 @@ version: "3.9"
 services:
   consumer:
     build: .
-    container_name: amqp_trigger_example
+    container_name: amqp_trigger_recalculate_primary
     environment:
       AMQP_HOST: 192.168.1.234
       AMQP_PASSWORD: guest
