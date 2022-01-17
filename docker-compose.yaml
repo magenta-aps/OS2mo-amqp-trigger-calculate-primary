@@ -8,6 +8,19 @@ services:
     build: .
     container_name: amqp_trigger_recalculate_primary
     environment:
-      AMQP_HOST: 192.168.1.234
+      AMQP_HOST: msg_broker
       AMQP_PASSWORD: guest
-      AMQP_ROUTING_KEYS: org_unit.address.edit employee.address.edit
+
+      AMQP_INTEGRATION: SD
+
+      MO_URL: "http://mo"
+      CLIENT_ID: "dipex"
+      CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
+      AUTH_REALM: "mo"
+      AUTH_SERVER: "http://keycloak:8080/auth"
+    networks:
+      - os2mo_default
+
+networks:
+  os2mo_default:
+    external: true

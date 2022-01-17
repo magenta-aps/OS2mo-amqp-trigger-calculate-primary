@@ -5,32 +5,76 @@ import asyncio
 import json
 from typing import Any
 from typing import List
+from typing import Optional
+from uuid import UUID
 from uuid import uuid4
 
 import click
 from aio_pika import connect
 from aio_pika import ExchangeType
 from aio_pika import IncomingMessage
+from integrations.calculate_primary.calculate_primary import get_engagement_updater
+from integrations.calculate_primary.calculate_primary import setup_logging
+from integrations.calculate_primary.common import MOPrimaryEngagementUpdater
+
+
+routing_keys: List[str] = [
+    "employee.employee.create",
+    "employee.employee.edit",
+    "employee.employee.terminate",
+    "employee.engagement.create",
+    "employee.engagement.edit",
+    "employee.engagement.terminate",
+]
+
+
+updater: Optional[MOPrimaryEngagementUpdater] = None
+
+
+def calculate_user(uuid: UUID) -> None:
+    print(f"Recalculating user: {uuid}")
+    try:
+        updater.recalculate_user(uuid)  # type: ignore
+    except Exception as exp:
+        print(exp)
 
 
 def on_message(message: IncomingMessage) -> None:
     with message.process():
+        payload = json.loads(message.body)
+        employee_uuid = payload["uuid"]
+
         print(
-            json.dumps(
-                {"routing-key": message.routing_key, "body": json.loads(message.body)},
-                indent=4,
-            )
+            json.dumps({"routing-key": message.routing_key, "body": payload}, indent=4)
         )
+        calculate_user(employee_uuid)
 
 
 async def main(
+    integration: str,
+    dry_run: bool,
     host: str,
     port: int,
     username: str,
     password: str,
     exchange: str,
-    routing_keys: List[str],
+    os2mo_url: str,
 ) -> None:
+    print("Configuring calculate-primary logging")
+    setup_logging()
+
+    print(f"Acquiring updater: {integration}")
+    updater_class = get_engagement_updater(integration)
+    print(f"Got class: {updater_class}")
+    global updater
+    updater = updater_class(
+        settings={
+            "mora.base": os2mo_url,
+        },
+        dry_run=dry_run,
+    )
+    print(f"Got object: {updater}")
+
     print(f"Establishing AMQP connection to amqp://{username}:xxxxx@{host}:{port}/")
     connection = await connect(f"amqp://{username}:{password}@{host}:{port}/")
 
@@ -55,6 +99,13 @@ async def main(
 
 
 @click.command()
+@click.option(
+    "--integration",
+    type=click.Choice(["DEFAULT", "SD", "OPUS"], case_sensitive=False),
+    required=True,
+    help="Integration to use",
+)
+@click.option("--dry-run", is_flag=True, type=click.BOOL, help="Make no changes")
 @click.option(
     "--host",
     default="localhost",
@@ -88,15 +139,17 @@ async def main(
     show_default=True,
 )
 @click.option(
-    "routing_keys",
-    "--routing-key",
-    multiple=True,
-    help="AMQP routing keys",
+    "--mo-url",
+    help="OS2mo URL",
+    required=True,
 )
 def cli(**kwargs: Any) -> None:
     loop = asyncio.get_event_loop()
-    loop.create_task(main(**kwargs))
+    # Setup everything
+    loop.run_until_complete(main(**kwargs))
+    # Run forever listening to messages
     loop.run_forever()
+    loop.close()
 
 
 if __name__ == "__main__":

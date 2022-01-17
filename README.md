@@ -22,21 +22,32 @@ docker-compose up -d
 
 You should see the following:
 ```
-Establishing AMQP connection to amqp://guest:xxxxx@HOST:5672/
+Configuring calculate-primary logging
+Acquiring updater: SD
+Got class: <class 'integrations.calculate_primary.sd.SDPrimaryEngagementUpdater'>
+Got object: <integrations.calculate_primary.sd.SDPrimaryEngagementUpdater object at 0x7fe055067a30>
+Establishing AMQP connection to amqp://guest:xxxxx@msg_broker:5672/
 Creating AMQP channel
 Attaching AMQP exchange to channel
-Declaring unique message queue: os2mo-consumer-UUID
+Declaring unique message queue: os2mo-consumer-db169240-4054-4818-a333-15ca41ba9835
+Binding routing-key: employee.employee.create
+Binding routing-key: employee.employee.edit
+Binding routing-key: employee.employee.terminate
+Binding routing-key: employee.engagement.create
 Binding routing-key: employee.engagement.edit
+Binding routing-key: employee.engagement.terminate
 Listening for messages
 ```
 
-At which point an update to an address in OS2mo should trigger an event similar to:
+At which point an update to an employee or engagement in OS2mo should trigger an event similar to:
 ```
 {
-    "routing-key": "employee.address.update",
+    "routing-key": "employee.employee.edit",
     "body": {
-        "uuid": "be39de52-060a-4ae3-b705-ba46dd9b27a6",
-        "time": "2021-07-27T00:00:00+02:00"
+        "uuid": "23d2dfc7-6ceb-47cf-97ed-db6beadcb09b",
+        "object_uuid": "23d2dfc7-6ceb-47cf-97ed-db6beadcb09b",
+        "time": "2022-01-04T00:00:00+01:00"
     }
 }
+Recalculating user: 23d2dfc7-6ceb-47cf-97ed-db6beadcb09b
 ```
