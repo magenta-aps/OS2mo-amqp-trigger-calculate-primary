@@ -11,7 +11,7 @@ services:
       AMQP_HOST: msg_broker
       AMQP_PASSWORD: guest
 
-      AMQP_INTEGRATION: SD
+      AMQP_INTEGRATION: DEFAULT
 
       MO_URL: "http://mo"
       CLIENT_ID: "dipex"
@@ -20,6 +20,14 @@ services:
       AUTH_SERVER: "http://keycloak:8080/auth"
     networks:
       - os2mo_default
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://consumer:8000/metrics"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 networks:
   os2mo_default:

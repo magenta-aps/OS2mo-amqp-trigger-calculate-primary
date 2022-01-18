@@ -47,6 +47,8 @@ Test:
   image:
     name: ${IMAGE_SHA}
   script:
-    - python main.py --help
+    - echo "" > VERSION
+    - echo "" > HASH
+    - python ./main.py --help
   tags:
     - docker
