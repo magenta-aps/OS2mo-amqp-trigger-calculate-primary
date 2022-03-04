@@ -8,8 +8,7 @@ services:
     build: .
     container_name: amqp_trigger_recalculate_primary
     environment:
-      AMQP_HOST: msg_broker
-      AMQP_PASSWORD: guest
+      AMQP_URL: "amqp://guest:guest@msg_broker:5672"
 
       AMQP_INTEGRATION: DEFAULT
 

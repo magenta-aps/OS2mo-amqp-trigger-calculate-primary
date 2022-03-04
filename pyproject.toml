@@ -16,6 +16,8 @@ python = "^3.8"
 click = "^8.0.1"
 aio-pika = "^6.8.0"
 prometheus-client = "^0.12.0"
+structlog = "^21.5.0"
+os2mo-http-trigger-protocol = "^0.0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "6.2.3"
@@ -23,6 +25,7 @@ black = "21.4b2"
 flake8 = "3.9.1"
 mypy = "0.812"
 reorder-python-imports = "^2.5.0"
+pre-commit = "^2.17.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

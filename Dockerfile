@@ -41,5 +41,6 @@ RUN pip install ra_utils pydantic tqdm
 WORKDIR /app
 COPY --from=builder /opt/VERSION .
 COPY --from=builder /opt/HASH .
+COPY amqp.py .
 COPY main.py .
 CMD [ "python", "./main.py" ]
