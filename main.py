@@ -14,7 +14,10 @@ from prometheus_client import Info
 from prometheus_client import start_http_server
 
 from amqp import AMQPSystem
+from amqp import ObjectType
 from amqp import PayloadType
+from amqp import RequestType
+from amqp import ServiceType
 from amqp import strip_routing
 
 version_info = Info("recalculate_build_version", "Version information")
@@ -73,12 +76,12 @@ def cli(
     )
     logger.debug("Updater object", updater_object=updater)
 
-    @amqpsystem.register("employee", "employee", "CREATE")
-    @amqpsystem.register("employee", "employee", "EDIT")
-    @amqpsystem.register("employee", "employee", "TERMINATE")
-    @amqpsystem.register("employee", "engagement", "CREATE")
-    @amqpsystem.register("employee", "engagement", "EDIT")
-    @amqpsystem.register("employee", "engagement", "TERMINATE")
+    @amqpsystem.register(
+        ServiceType.EMPLOYEE, ObjectType.EMPLOYEE, RequestType.WILDCARD
+    )
+    @amqpsystem.register(
+        ServiceType.EMPLOYEE, ObjectType.ENGAGEMENT, RequestType.WILDCARD
+    )
     @strip_routing
     async def calculate_user(
         payload: PayloadType,
