@@ -5,3 +5,7 @@
 
 async def callback_func(routing_key: str, payload: dict) -> None:
     pass
+
+
+async def callback_func2(routing_key: str, payload: dict) -> None:
+    pass

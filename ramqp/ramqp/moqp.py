@@ -1,33 +1,19 @@
 # SPDX-FileCopyrightText: 2019-2020 Magenta ApS
 #
 # SPDX-License-Identifier: MPL-2.0
-import asyncio
-from asyncio import TimerHandle
 from datetime import datetime
 from enum import auto
 from enum import Enum
 from enum import unique
-from functools import wraps
 from typing import Any
 from typing import Awaitable
 from typing import Callable
 from typing import cast
-from typing import Dict
 from typing import List
-from typing import Optional
-from typing import Set
 from uuid import UUID
 
 import structlog
-from aio_pika import connect
-from aio_pika import ExchangeType
-from aio_pika import IncomingMessage
-from prometheus_client import Counter
-from prometheus_client import Gauge
-from prometheus_client import Histogram
-from pydantic import AmqpDsn  # type: ignore
 from pydantic import BaseModel
-from pydantic import BaseSettings
 from pydantic import validator
 
 

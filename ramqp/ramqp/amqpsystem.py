@@ -24,7 +24,7 @@ from pydantic import parse_obj_as
 logger = structlog.get_logger()
 
 
-event_counter = Counter("amqp_events", "AMQP Events", ["routing_key"])
+event_counter = Counter("amqp_events", "AMQP Events", ["routing_key", "function_name"])
 exception_parse_counter = Counter(
     "amqp_exceptions_parse",
     "Exception counter",
@@ -60,9 +60,13 @@ last_heartbeat = Gauge(
     "amqp_last_heartbeat", "Timestamp (monotonic) of the last connection heartbeat"
 )
 backlog_count = Gauge(
-    "amqp_backlog", "Number of messages waiting for processing in the backlog"
+    "amqp_backlog",
+    "Number of messages waiting for processing in the backlog",
+    ["function"],
 )
-routes_bound = Counter("amqp_routes_bound", "Number of routing-keys bound to the queue")
+routes_bound = Counter(
+    "amqp_routes_bound", "Number of routing-keys bound to the queue", ["function"]
+)
 callbacks_registered = Counter(
     "amqp_callbacks_registered", "Number of callbacks registered", ["routing_key"]
 )
@@ -73,6 +77,11 @@ class InvalidRegisterCallException(Exception):
 
 
 CallbackType = Callable[[str, dict], Awaitable]
+
+
+def function_to_name(function: Callable) -> str:
+    """Get a uniquely qualified name for a given function."""
+    return function.__qualname__
 
 
 class Settings(BaseSettings):
@@ -87,7 +96,7 @@ class AMQPSystem:
         self.settings = Settings(*args, **kwargs)
 
         self._started: bool = False
-        self._registry: Dict[str, Set[CallbackType]] = {}
+        self._registry: Dict[CallbackType, Set[str]] = {}
 
     def has_started(self) -> bool:
         return self._started
@@ -95,10 +104,8 @@ class AMQPSystem:
     def register(self, routing_key: str) -> Callable[[CallbackType], CallbackType]:
         assert routing_key != ""
 
-        registry = self._registry.setdefault(routing_key, set())
-
         def decorator(function: CallbackType) -> CallbackType:
-            function_name = function.__qualname__
+            function_name = function_to_name(function)
 
             log = logger.bind(routing_key=routing_key, function=function_name)
             log.info("Register called")
@@ -108,20 +115,8 @@ class AMQPSystem:
                 log.error(message)
                 raise InvalidRegisterCallException(message)
 
-            @wraps(function)
-            async def wrapper(routing_key: str, payload: dict) -> None:
-                processing_calls.labels(routing_key, function_name).inc()
-                wrapped_function = processing_inprogress.labels(
-                    routing_key, function_name
-                ).track_inprogress()(function)
-                wrapped_function = processing_time.labels(
-                    routing_key, function_name
-                ).time()(wrapped_function)
-                await wrapped_function(routing_key, payload)
-
             callbacks_registered.labels(routing_key).inc()
-
-            registry.add(wrapper)
+            self._registry.setdefault(function, set()).add(routing_key)
             return function
 
         return decorator
@@ -139,7 +134,7 @@ class AMQPSystem:
 
         logger.info("Creating AMQP channel")
         channel = await connection.channel()
-        await channel.set_qos(prefetch_count=1)
+        await channel.set_qos(prefetch_count=10)
 
         logger.info(
             "Attaching AMQP exchange to channel", exchange=self.settings.amqp_exchange
@@ -148,65 +143,70 @@ class AMQPSystem:
             self.settings.amqp_exchange, ExchangeType.TOPIC
         )
 
-        logger.info(
-            "Declaring unique message queue", queue_name=self.settings.queue_name
-        )
-        queue = await channel.declare_queue(self.settings.queue_name, durable=True)
+        # TODO: Create queues and binds in parallel?
+        queues = {}
+        for callback, routing_keys in self._registry.items():
+            function_name = function_to_name(callback)
+            log = logger.bind(function=function_name)
 
-        logger.info("Starting message listener")
-        await queue.consume(self.on_message)  # type: ignore
+            queue_name = f"{self.settings.queue_name}_{function_name}"
+            log.info("Declaring unique message queue", queue_name=queue_name)
+            queue = await channel.declare_queue(queue_name, durable=True)
+            queues[function_name] = queue
 
-        logger.info("Binding routing keys")
-        # TODO: Bind in parallel
-        for routing_key in self._registry.keys():
-            logger.info("Binding routing-key", routing_key=routing_key)
-            await queue.bind(topic_logs_exchange, routing_key=routing_key)
-            routes_bound.inc()
+            log.info("Starting message listener")
+            await queue.consume(partial(callback, self.on_message))  # type: ignore
 
-        # Setup metrics
+            log.info("Binding routing keys")
+            for routing_key in routing_keys:
+                log.info("Binding routing-key", routing_key=routing_key)
+                await queue.bind(topic_logs_exchange, routing_key=routing_key)
+                routes_bound.labels(function_name).inc()
+
+        # Setup periodic metrics
         async def periodic_metrics() -> None:
             loop = asyncio.get_running_loop()
             while True:
                 last_periodic.set_to_current_time()
                 last_loop_periodic.set(loop.time())
                 last_heartbeat.set(connection.heartbeat_last)  # type: ignore
-                backlog_count.set(queue.declaration_result.message_count)
+                for function_name, queue in queues.items():
+                    backlog_count.labels(function_name).set(
+                        queue.declaration_result.message_count
+                    )
                 await asyncio.sleep(1)
 
         asyncio.create_task(periodic_metrics())
 
-    async def on_message(self, message: IncomingMessage) -> None:
+    async def on_message(
+        self, callback: CallbackType, message: IncomingMessage
+    ) -> None:
         last_on_message.set_to_current_time()
 
         assert message.routing_key is not None
         routing_key = message.routing_key
-        logger = logger.bind(routing_key=routing_key)
+        function_name = function_to_name(callback)
+        log = logger.bind(function=function_name, routing_key=routing_key)
 
-        logger.debug("Recieved message")
+        log.debug("Recieved message")
         try:
-            event_counter.labels(routing_key).inc()
-
-            async def fire_callback(callback: CallbackType) -> None:
-                try:
-                    with exception_callback_counter.labels(
-                        routing_key, callback.__qualname__
-                    ).count_exceptions():
-                        await callback(routing_key, payload)
-                except Exception:
-                    logger.exception(
-                        "Exception during callback",
-                        function=callback.__qualname__,
-                    )
-
-            with exception_parse_counter.labels(routing_key).count_exceptions():
-                async with message.process():
+            event_counter.labels(routing_key, function_name).inc()
+            async with message.process():
+                with exception_parse_counter.labels(routing_key).count_exceptions():
                     payload = json.loads(message.body)
-                    logger = logger.bind(payload=payload)
-                    logger.debug("Parsed message")
-                    last_message_time.set(payload.time.timestamp())
+                log.debug("Parsed message", payload=payload)
+                last_message_time.set(payload.time.timestamp())
 
-                    callbacks = self._registry.get(routing_key, set())
-                    await asyncio.gather(*map(fire_callback, callbacks))
-
+                with exception_callback_counter.labels(
+                    routing_key, function_name
+                ).count_exceptions():
+                    processing_calls.labels(routing_key, function_name).inc()
+                    wrapped_callback = processing_inprogress.labels(
+                        routing_key, function_name
+                    ).track_inprogress()(callback)
+                    wrapped_callback = processing_time.labels(
+                        routing_key, function_name
+                    ).time()(wrapped_callback)
+                    await wrapped_callback(routing_key, message)
         except Exception:
-            logger.exception("Exception during on_message()", routing_key=routing_key)
+            log.exception("Exception during on_message()", routing_key=routing_key)

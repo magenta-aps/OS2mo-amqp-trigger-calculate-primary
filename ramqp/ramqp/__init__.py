@@ -1,2 +1,2 @@
-from .lowlevel import AMQPSystem
-from .lowlevel import InvalidRegisterCallException
+from .amqpsystem import AMQPSystem
+from .amqpsystem import InvalidRegisterCallException

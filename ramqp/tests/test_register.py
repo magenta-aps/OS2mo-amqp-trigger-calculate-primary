@@ -16,8 +16,9 @@ def test_register(amqp_system, log_output):
 
     # Check that the amqp system did not start, and that our function has been added
     assert amqp_system.has_started() == False
-    callbacks = amqp_system._registry["test.routing.key"]
-    assert one(callbacks).__wrapped__ == callback_func
+    assert len(amqp_system._registry) == 1
+    routing_keys = amqp_system._registry[callback_func]
+    assert routing_keys == {"test.routing.key"}
 
     # Test that the call was logged
     assert log_output.entries == [
