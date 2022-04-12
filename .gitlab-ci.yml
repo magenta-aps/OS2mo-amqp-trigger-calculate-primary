@@ -5,6 +5,7 @@ stages:
   - lint
   - build
   - test
+  - coverage
   - release
 
 
@@ -14,20 +15,23 @@ variables:
   RELEASE_REGISTRY: docker.io
   RELEASE_REGISTRY_IMAGE: index.docker.io/magentaaps/os2mo-amqp-trigger-calculate-primary
 
+  PYTEST_COV_MODULE: calculate_primary
+  PYTEST_COV_FAIL_UNDER: 0
+
 
 include:
-  - project: 'labs/salt-automation'
-    ref: 'master'
-    file: '/gitlab-ci-templates/common/pre-commit.v1.yml'
-  - project: 'labs/salt-automation'
-    ref: 'master'
-    file: '/gitlab-ci-templates/common/docker-build.v1.yml'
-  - project: 'labs/salt-automation'
-    ref: 'master'
-    file: '/gitlab-ci-templates/common/autopub.v1.yml'
-  - project: 'labs/salt-automation'
-    ref: 'master'
-    file: '/gitlab-ci-templates/common/docker-release.v1.yml'
+  - project: labs/salt-automation
+    ref: master
+    file: /gitlab-ci-templates/common/autopub.v1.yml
+  - project: labs/salt-automation
+    ref: master
+    file: gitlab-ci-templates/python/pytest-meta.v1.yml
+  - project: labs/salt-automation
+    ref: master
+    file: /gitlab-ci-templates/common/docker-build.v1.yml
+  - project: labs/salt-automation
+    ref: master
+    file: /gitlab-ci-templates/common/docker-release.v1.yml
 
 
 # This is a workaround for a bug causing detached pipelines on MRs
@@ -40,15 +44,28 @@ workflow:
     - if: $CI_MERGE_REQUEST_IID
 
 
-# Test stage
-############
-Test:
-  stage: test
-  image:
-    name: ${IMAGE_SHA}
+Pre-commit:
+  stage: lint
+  interruptible: true
+  needs: []
+  image: python:3.8
+  before_script:
+    - apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
+    - pip install --no-cache-dir poetry
+    - poetry install
   script:
-    - echo "" > VERSION
-    - echo "" > HASH
-    - python ./main.py --help
-  tags:
-    - docker
+    - poetry run pre-commit run --all-files
+
+Test:
+  extends: .pytest
+  before_script:
+    - apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
+    - !reference [.pytest, before_script]
+
+Export coverage:
+  extends: .export_coverage
+  needs: [Test]
+
+Check coverage:
+  extends: .check_coverage
+  needs: [Test]

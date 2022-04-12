@@ -1,5 +1,8 @@
-<!-- SPDX-FileCopyrightText: 2019-2020 Magenta ApS -->
-<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!--
+SPDX-FileCopyrightText: 2021 Magenta ApS <https://magenta.dk>
+SPDX-License-Identifier: MPL-2.0
+-->
+
 CHANGELOG
 =========
 
@@ -12,11 +15,6 @@ CHANGELOG
 ------------------
 
 [#46874] Initial release
-
-1.0.0 - 2021-12-16
-------------------
-
-Initial release
 
 0.0.2 - 2021-12-16
 ------------------
