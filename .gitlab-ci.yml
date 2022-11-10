@@ -25,7 +25,7 @@ include:
     file: /gitlab-ci-templates/common/autopub.v1.yml
   - project: labs/salt-automation
     file: gitlab-ci-templates/python/pytest-meta.v1.yml
-    ref: "fa2b848cb5ff6b0e31d0282d2e12b5ccca9068bc"
+    ref: "bb66c1e4717a51d8a0b4d29c410efcbb4b5a0a8e"
   - project: labs/salt-automation
     ref: master
     file: /gitlab-ci-templates/common/docker-build.v1.yml
