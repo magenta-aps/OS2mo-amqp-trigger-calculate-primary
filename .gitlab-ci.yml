@@ -25,7 +25,7 @@ include:
     file: /gitlab-ci-templates/common/autopub.v1.yml
   - project: labs/salt-automation
     file: gitlab-ci-templates/python/pytest-meta.v1.yml
-    ref: "feature/52916_ci_caching_v2"
+    ref: "1f388693dcd0758e3971e1a363dbe6c4afa57a67"
   - project: labs/salt-automation
     ref: master
     file: /gitlab-ci-templates/common/docker-build.v1.yml
