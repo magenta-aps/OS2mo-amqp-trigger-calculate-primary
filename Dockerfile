@@ -9,9 +9,15 @@ RUN apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsod
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    POETRY_NO_INTERACTION=1
-RUN pip install --no-cache-dir poetry==1.1.8
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
+    POETRY_VERSION="1.2.0" \
+    POETRY_HOME=/opt/poetry \
+    VIRTUAL_ENV="/venv"
+ENV PATH="$VIRTUAL_ENV/bin:$POETRY_HOME/bin:$PATH"
+
+# Install poetry in an isolated environment
+RUN python -m venv $POETRY_HOME \
+    && pip install --no-cache-dir poetry==${POETRY_VERSION}
 
 WORKDIR /opt
 COPY .git ./
@@ -21,7 +27,9 @@ RUN poetry version --short > VERSION
 RUN git rev-parse --verify HEAD > HASH
 RUN cat VERSION HASH
 
-RUN poetry install --no-dev
+# Install project in another isolated environment
+RUN python -m venv $VIRTUAL_ENV
+RUN poetry install --no-root --only=main
 
 WORKDIR /app
 RUN cp /opt/VERSION .
