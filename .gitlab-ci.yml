@@ -58,6 +58,7 @@ Pre-commit:
 
 Test:
   extends: .pytest
+  image: python:3.9
   before_script:
     - apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
     - !reference [.pytest, before_script]
