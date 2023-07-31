@@ -6,6 +6,11 @@ SPDX-License-Identifier: MPL-2.0
 CHANGELOG
 =========
 
+1.0.0 - 2023-07-31
+------------------
+
+[#56758] We haven't created a release of the last two major MRs
+
 0.2.0 - 2022-01-18
 ------------------
 

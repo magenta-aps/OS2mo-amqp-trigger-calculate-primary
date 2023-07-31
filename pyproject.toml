@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MPL-2.0
 [tool.poetry]
 name = "calculate-primary"
-version = "0.2.0"
+version = "1.0.0"
 description = "OS2mo AMQP Trigger for recalculating primary"
 authors = ["Magenta <info@magenta.dk>"]
 license = "MPL-2.0"
