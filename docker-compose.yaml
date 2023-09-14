@@ -8,12 +8,12 @@ services:
     build: .
     container_name: amqp_trigger_recalculate_primary
     environment:
-      AMQP_HOST: msg_broker
+      AMQP_HOST: msg-broker
       AMQP_PASSWORD: guest
 
       AMQP_INTEGRATION: DEFAULT
 
-      MO_URL: "http://mo"
+      MO_URL: "http://mo:5000"
       CLIENT_ID: "dipex"
       CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
       AUTH_REALM: "mo"
