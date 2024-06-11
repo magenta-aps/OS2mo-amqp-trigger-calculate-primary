@@ -5,6 +5,7 @@
 import asyncio
 from functools import partial
 from pathlib import Path
+from typing import List
 from uuid import UUID
 
 import click
@@ -73,7 +74,10 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
 
 
 def _setup_updater(
-    integration: str, dry_run: bool, mo_url: str
+    integration: str,
+    dry_run: bool,
+    mo_url: str,
+    eng_types_primary_order: List[str],
 ) -> MOPrimaryEngagementUpdater:
     """Exchange integration to updater.
 
@@ -94,6 +98,7 @@ def _setup_updater(
     updater: MOPrimaryEngagementUpdater = updater_class(
         settings={
             "mora.base": mo_url,
+            "integrations.opus.eng_types_primary_order": eng_types_primary_order,
         },
         dry_run=dry_run,
     )
@@ -209,6 +214,12 @@ def _run_amqp(
     required=True,
     envvar="MO_URL",
 )
+@click.option(
+    "--eng-types-primary-order",
+    help="Priority of engagement types. Only relevant for OPUS",
+    default=[],
+    envvar="ENG_TYPES_PRIMARY_ORDER",
+)
 # pylint: disable=too-many-arguments
 def cli(
     integration: str,
@@ -219,11 +230,12 @@ def cli(
     password: str,
     exchange: str,
     mo_url: str,
+    eng_types_primary_order: List[str],
 ) -> None:
     """Click entrypoint."""
     _setup_metrics()
 
-    updater = _setup_updater(integration, dry_run, mo_url)
+    updater = _setup_updater(integration, dry_run, mo_url, eng_types_primary_order)
     amqp_url = f"amqp://{username}:{password}@{host}:{port}"
     _run_amqp(updater, amqp_url, exchange)
 
