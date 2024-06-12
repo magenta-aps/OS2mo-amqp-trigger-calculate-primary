@@ -10,9 +10,9 @@ from typing import List
 from uuid import UUID
 
 import click
-from integrations.calculate_primary.calculate_primary import get_engagement_updater
-from integrations.calculate_primary.calculate_primary import setup_logging
-from integrations.calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.calculate_primary import get_engagement_updater
+from calculate_primary.calculate_primary import setup_logging
+from calculate_primary.common import MOPrimaryEngagementUpdater
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info

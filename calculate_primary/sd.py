@@ -1,7 +1,7 @@
 import datetime
 
-from integrations.calculate_primary.common import logger
-from integrations.calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.common import logger
+from calculate_primary.common import MOPrimaryEngagementUpdater
 
 
 # This function has been copied directly from the SD-integration repo as

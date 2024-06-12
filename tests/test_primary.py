@@ -9,8 +9,19 @@ import hypothesis.strategies as st
 from hypothesis import given
 from more_itertools import unzip
 
-from ..common import MOPrimaryEngagementUpdater
-from integrations.ad_integration.utils import AttrDict
+from calculate_primary.common import MOPrimaryEngagementUpdater
+
+class AttrDict(dict):
+    """Enable dot.notation access for a dict object.
+
+    Example:
+        script_result = AttrDict({"exit_code": 0})
+        self.assertEqual(script_result.exit_code, 0)
+    """
+
+    __getattr__ = dict.__getitem__
+    __setattr__ = dict.__setitem__  # type: ignore
+    __delattr__ = dict.__delitem__  # type: ignore
 
 
 def engagements_at_date(date, engagements):
@@ -266,7 +277,7 @@ class Test_check_user(TestCase):
         outputter, strings, user_uuids, dates = unzip(
             self.updater._check_user_outputter([], "user_uuid")
         )
-        from ..common import noop, logger
+        from calculate_primary.common import noop, logger
 
         self.assertEqual(
             list(outputter), [print, noop, logger.info, logger.info, print]

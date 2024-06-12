@@ -1,7 +1,7 @@
 import math
 
-from integrations.calculate_primary.common import logger
-from integrations.calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.common import logger
+from calculate_primary.common import MOPrimaryEngagementUpdater
 
 
 class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
