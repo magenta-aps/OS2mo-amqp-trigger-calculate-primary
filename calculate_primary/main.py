@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 """Event-driven recalculate primary program."""
 import asyncio
+import json
 from functools import partial
 from pathlib import Path
 from typing import List
@@ -217,7 +218,7 @@ def _run_amqp(
 @click.option(
     "--eng-types-primary-order",
     help="Priority of engagement types. Only relevant for OPUS",
-    default=[],
+    default="[]",
     envvar="ENG_TYPES_PRIMARY_ORDER",
 )
 # pylint: disable=too-many-arguments
@@ -230,12 +231,13 @@ def cli(
     password: str,
     exchange: str,
     mo_url: str,
-    eng_types_primary_order: List[str],
+    eng_types_primary_order: str,
 ) -> None:
     """Click entrypoint."""
     _setup_metrics()
 
-    updater = _setup_updater(integration, dry_run, mo_url, eng_types_primary_order)
+    opus_eng_types_primary_order: List[str] = json.loads(eng_types_primary_order)
+    updater = _setup_updater(integration, dry_run, mo_url, opus_eng_types_primary_order)
     amqp_url = f"amqp://{username}:{password}@{host}:{port}"
     _run_amqp(updater, amqp_url, exchange)
 
