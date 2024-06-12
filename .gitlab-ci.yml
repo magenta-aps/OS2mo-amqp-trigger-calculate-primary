@@ -17,7 +17,7 @@ variables:
 
   PYTEST_COV_MODULE: calculate_primary
   PYTEST_COV_FAIL_UNDER: 0
-
+  POETRY_VERSION: 1.8.3
 
 include:
   - project: labs/salt-automation
@@ -51,7 +51,7 @@ Pre-commit:
   image: python:3.8
   before_script:
     - apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
-    - pip install --no-cache-dir poetry
+    - pip install --no-cache-dir poetry poetry==1.8.3
     - poetry install
   script:
     - poetry run pre-commit run --all-files
@@ -59,9 +59,6 @@ Pre-commit:
 Test:
   extends: .pytest
   image: python:3.9
-  before_script:
-    - apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
-    - !reference [.pytest, before_script]
 
 Export coverage:
   extends: .export_coverage
