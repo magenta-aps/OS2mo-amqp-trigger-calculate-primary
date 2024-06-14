@@ -5,12 +5,10 @@
 # Builder
 FROM python:3.9 as builder
 
-RUN apt-get update && apt-get -y install unixodbc-dev freetds-dev unixodbc tdsodbc libkrb5-dev libmariadb-dev
-
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
-    POETRY_VERSION="1.2.0" \
+    POETRY_VERSION="1.8.3" \
     POETRY_HOME=/opt/poetry \
     VIRTUAL_ENV="/venv"
 ENV PATH="$VIRTUAL_ENV/bin:$POETRY_HOME/bin:$PATH"
@@ -34,5 +32,5 @@ RUN poetry install --no-root --only=main
 WORKDIR /app
 RUN cp /opt/VERSION .
 RUN cp /opt/HASH .
-COPY calculate_primary/main.py .
-CMD [ "python", "./main.py" ]
+COPY calculate_primary ./calculate_primary
+CMD [ "python","-m", "calculate_primary.main" ]
