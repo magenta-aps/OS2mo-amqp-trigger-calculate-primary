@@ -1,29 +1,28 @@
 # SPDX-FileCopyrightText: Magenta ApS
 #
 # SPDX-License-Identifier: MPL-2.0
-
-version: "3.9"
 services:
-  consumer:
+  calculate_primary:
     build: .
     container_name: amqp_trigger_recalculate_primary
     environment:
-      AMQP_HOST: msg-broker
-      AMQP_PASSWORD: guest
+      # OS2mo
+      FASTRAMQPI__MO_URL: "http://mo:5000"
+      FASTRAMQPI__CLIENT_ID: "dipex"
+      FASTRAMQPI__CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
+      FASTRAMQPI__AUTH_SERVER: "http://keycloak:8080/auth"
+      FASTRAMQPI__AUTH_REALM: "mo"
+      FASTRAMQPI__AMQP__URL: "amqp://guest:guest@msg-broker:5672/"
 
-      AMQP_INTEGRATION: DEFAULT
 
-      MO_URL: "http://mo:5000"
-      CLIENT_ID: "dipex"
-      CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
-      AUTH_REALM: "mo"
-      AUTH_SERVER: "http://keycloak:8080/auth"
+      INTEGRATION: DEFAULT
+
     networks:
       - os2mo_default
     ports:
       - "8000:8000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://consumer:8000/metrics"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/metrics"]
       interval: 5s
       timeout: 5s
       retries: 3
