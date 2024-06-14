@@ -5,8 +5,6 @@ from uuid import UUID
 
 from fastramqpi.config import Settings as FastRAMQPISettings
 from pydantic import BaseSettings
-from pydantic import Field
-
 
 class Settings(BaseSettings):
     class Config:

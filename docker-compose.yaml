@@ -4,8 +4,9 @@
 services:
   calculate_primary:
     build: .
-    container_name: amqp_trigger_recalculate_primary
+    command: "uvicorn --factory calculate_primary.app:create_app --host 0.0.0.0 --reload"
     environment:
+      INTEGRATION: DEFAULT
       # OS2mo
       FASTRAMQPI__MO_URL: "http://mo:5000"
       FASTRAMQPI__CLIENT_ID: "dipex"
@@ -14,10 +15,10 @@ services:
       FASTRAMQPI__AUTH_REALM: "mo"
       FASTRAMQPI__AMQP__URL: "amqp://guest:guest@msg-broker:5672/"
 
-      INTEGRATION: DEFAULT
-
     networks:
       - os2mo_default
+    volumes:
+      - ./:/app/:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://calculate_primary:8000/metrics"]
       interval: 5s
