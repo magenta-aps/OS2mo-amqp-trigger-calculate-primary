@@ -2,26 +2,19 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 """Event-driven recalculate primary program."""
-import asyncio
-import json
-from functools import partial
 from pathlib import Path
 from typing import List
 from uuid import UUID
 
 import click
-from calculate_primary.calculate_primary import get_engagement_updater
-from calculate_primary.calculate_primary import setup_logging
-from calculate_primary.common import MOPrimaryEngagementUpdater
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info
-from prometheus_client import start_http_server
-from ramqp.moqp import MOAMQPSystem
-from ramqp.moqp import ObjectType
-from ramqp.moqp import PayloadType
-from ramqp.moqp import RequestType
-from ramqp.moqp import ServiceType
+
+from calculate_primary.calculate_primary import get_engagement_updater
+from calculate_primary.calculate_primary import setup_logging
+from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import Settings
 
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
@@ -75,10 +68,7 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
 
 
 def _setup_updater(
-    integration: str,
-    dry_run: bool,
-    mo_url: str,
-    eng_types_primary_order: List[str],
+    settings: Settings,
 ) -> MOPrimaryEngagementUpdater:
     """Exchange integration to updater.
 
@@ -93,14 +83,10 @@ def _setup_updater(
     print("Configuring calculate-primary logging")
     setup_logging()
 
-    print(f"Acquiring updater: {integration}")
-    updater_class = get_engagement_updater(integration)
+    print(f"Acquiring updater: {settings.integration}")
+    updater_class = get_engagement_updater(settings.integration)
     print(f"Got class: {updater_class}")
-    updater: MOPrimaryEngagementUpdater = updater_class(
-        mo_url= mo_url,
-        eng_types_primary_order= eng_types_primary_order,
-        dry_run=dry_run,
-    )
+    updater: MOPrimaryEngagementUpdater = updater_class(settings)
     print(f"Got object: {updater}")
     return updater
 
