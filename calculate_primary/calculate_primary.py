@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import json
 import logging
 import sys

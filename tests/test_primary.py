@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import datetime
 from collections import OrderedDict
 from operator import itemgetter
