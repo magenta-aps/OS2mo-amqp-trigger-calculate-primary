@@ -71,7 +71,11 @@ Test:
 Export coverage:
   extends: .export_coverage
   needs: [Test]
+  rules:
+    - <<: *if-merge-request
 
 Check coverage:
   extends: .check_coverage
   needs: [Test]
+  rules:
+    - <<: *if-merge-request
