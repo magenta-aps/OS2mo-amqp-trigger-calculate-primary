@@ -18,6 +18,7 @@ from os2mo_helpers.mora_helpers import MoraHelper
 from ra_utils.deprecation import deprecated
 from ra_utils.tqdm_wrapper import tqdm
 
+from calculate_primary.config import _Settings
 
 LOGGER_NAME = "updatePrimaryEngagements"
 logger = logging.getLogger(LOGGER_NAME)
@@ -48,11 +49,11 @@ def noop(*args, **kwargs):
 
 
 class MOPrimaryEngagementUpdater(ABC):
-    def __init__(self, mo_url, dry_run=False, **kwargs):
-        
+    def __init__(self, settings: _Settings, dry_run=False):
+        self.settings = settings
         self.dry_run = dry_run
 
-        self.helper = self._get_mora_helper(mo_url)
+        self.helper = self._get_mora_helper(self.settings.fastramqpi.mo_url)
 
         # List of engagement filters to apply to check / recalculate respectively
         # NOTE: Should be overridden by subclasses
