@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 
@@ -51,15 +52,18 @@ def get_engagement_updater(integration):
     help="Integration to use",
 )
 @click.option("--dry-run", is_flag=True, type=click.BOOL, help="Make no changes")
-# @optgroup.group("Operation", cls=RequiredMutuallyExclusiveOptionGroup, help="")
-# @optgroup.option(
-#    "--check-all", is_flag=True, type=click.BOOL, help="Check all users"
-# )
-# @optgroup.option("--check-user", type=click.UUID, help="Check one user")
-# @optgroup.option(
-#    "--recalculate-all", is_flag=True, type=click.BOOL, help="Recalculate all users"
-# )
-# @optgroup.option("--recalculate-user", type=click.UUID, help="Recalculate one user")
+@click.option(
+    "--mo-url",
+    help="OS2mo URL",
+    required=True,
+    envvar="MO_URL",
+)
+@click.option(
+    "--eng-types-primary-order",
+    help="Priority of engagement types. Only relevant for OPUS",
+    default="[]",
+    envvar="ENG_TYPES_PRIMARY_ORDER",
+)
 @click.option("--check-all", is_flag=True, type=click.BOOL, help="Check all users")
 @click.option("--check-user", type=click.UUID, help="Check one user")
 @click.option(
@@ -67,14 +71,16 @@ def get_engagement_updater(integration):
 )
 @click.option("--recalculate-user", type=click.UUID, help="Recalculate one user")
 def calculate_primary(
-    integration, dry_run, check_all, check_user, recalculate_all, recalculate_user
+    integration, dry_run, mo_url, eng_types_primary_order: str,
+    check_all, check_user, recalculate_all, recalculate_user
 ):
     """Tool to work with primary engagement(s)."""
     setup_logging()
-
     # Acquire the configured updater
-    updater_class = get_engagement_updater(integration)
-    updater = updater_class(dry_run=dry_run)
+
+
+    updater_class = get_engagement_updater(integration=integration)
+    updater = updater_class(dry_run=dry_run, mo_url=mo_url, eng_types_primary_order=json.loads(eng_types_primary_order))
 
     # Run the specified operation
     if check_all:

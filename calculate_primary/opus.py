@@ -11,8 +11,8 @@ class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
         # Currently primary is set first by engagement type (order given in
         # settings) and secondly by job_id.
         # TODO: Check that configured eng_types exist
-        self.eng_types_order = self.settings[
-            "integrations.opus.eng_types_primary_order"
+        self.eng_types_order = kwargs[
+            "eng_types_primary_order"
         ]
 
         def engagements_included_in_primary_calculation(user_uuid, no_past, engagement):
