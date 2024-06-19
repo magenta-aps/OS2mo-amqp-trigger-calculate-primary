@@ -97,10 +97,8 @@ def _setup_updater(
     updater_class = get_engagement_updater(integration)
     print(f"Got class: {updater_class}")
     updater: MOPrimaryEngagementUpdater = updater_class(
-        settings={
-            "mora.base": mo_url,
-            "integrations.opus.eng_types_primary_order": eng_types_primary_order,
-        },
+        mo_url= mo_url,
+        eng_types_primary_order= eng_types_primary_order,
         dry_run=dry_run,
     )
     print(f"Got object: {updater}")
