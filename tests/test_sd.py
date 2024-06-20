@@ -105,7 +105,17 @@ def test_sd_non_integer_user_key_only_engagement():
     # Act
     updater.recalculate_user("User_uuid")
 
-    updater.helper._mo_post.assert_not_called()
+    updater.helper._mo_post.assert_called_once_with(
+        "details/edit",
+        {
+            "type": "engagement",
+            "uuid": uuid_primary_engagement,
+            "data": {
+                "primary": {"uuid": "primary_uuid"},
+                "validity": {"from": "2024-01-14", "to": None},
+            },
+        },
+    )
 
 
 def test_sd_by_fraction():
