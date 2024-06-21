@@ -93,16 +93,16 @@ class SDPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
         return primary_types, primary
 
     def _find_primary(self, mo_engagements):
-        def non_integer_userkey(mo_engagement):
-            # Ensure that all mo_engagements have integer user_keys.
+        def set_primary_score(mo_engagement):
+            # Engagements with non-integer user_keys are only primary if no other engagements are present 
             try:
-                int(mo_engagement["user_key"])
+                mo_engagement["primary_score"] = int(mo_engagement["user_key"])
             except ValueError:
-                return False
-            return True
+                mo_engagement["primary_score"] = 100000
 
-        # Ensure that all mo_engagements have integer user_keys.
-        mo_engagements = list(filter(non_integer_userkey, mo_engagements))
+        
+        for e in mo_engagements:
+            set_primary_score(e)
 
         if not mo_engagements:
             return None
@@ -115,6 +115,6 @@ class SDPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
         primary_engagement = max(
             mo_engagements,
             # Sort first by fraction, then reversely by user_key integer
-            key=lambda eng: (eng.get("fraction") or 0, -int(eng["user_key"])),
+            key=lambda eng: (eng.get("fraction") or 0, -eng["primary_score"]),
         )
         return primary_engagement["uuid"]
