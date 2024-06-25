@@ -15,22 +15,10 @@ class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
             "eng_types_primary_order"
         ]
 
-        def engagements_included_in_primary_calculation(user_uuid, no_past, engagement):
-            if engagement["org_unit"]["uuid"] in self.settings.get(
-                "integrations.ad.import_ou.mo_unit_uuid", ""
-            ):
-                # disregard engagements from externals
-                logger.warning(
-                    "disregarding external engagement: {}".format(engagement)
-                )
-                return False
-            return True
-
         def remove_missing_user_key(user_uuid, no_past, engagement):
             return "user_key" in engagement
 
         self.calculate_filters = [
-            engagements_included_in_primary_calculation,
             remove_missing_user_key,
         ]
 
