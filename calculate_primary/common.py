@@ -47,7 +47,7 @@ def noop(*args, **kwargs):
 
 
 class MOPrimaryEngagementUpdater(ABC):
-    def __init__(self, dry_run=False):
+    def __init__(self, settings:Settings):
         self.helper = self._get_mora_helper(self.settings.fastramqpi.mo_url)
 
         # List of engagement filters to apply to check / recalculate respectively
