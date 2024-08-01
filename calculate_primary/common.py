@@ -1,5 +1,4 @@
 import datetime
-import logging
 from abc import ABC
 from abc import abstractmethod
 from functools import lru_cache
@@ -8,6 +7,7 @@ from operator import itemgetter
 from typing import Union
 from uuid import UUID
 
+import structlog
 from more_itertools import ilen
 from more_itertools import only
 from more_itertools import pairwise
@@ -17,9 +17,7 @@ from ra_utils.tqdm_wrapper import tqdm
 
 from calculate_primary.config import Settings
 
-
-LOGGER_NAME = "updatePrimaryEngagements"
-logger = logging.getLogger(LOGGER_NAME)
+logger = structlog.stdlib.get_logger()
 
 
 class MultipleFixedPrimaries(Exception):

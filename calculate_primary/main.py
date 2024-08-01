@@ -6,15 +6,16 @@ from pathlib import Path
 from typing import List
 from uuid import UUID
 
+import structlog
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info
 
 from calculate_primary.calculate_primary import get_engagement_updater
-from calculate_primary.calculate_primary import setup_logging
 from calculate_primary.common import MOPrimaryEngagementUpdater
 from calculate_primary.config import Settings
 
+logger = structlog.stdlib.get_logger()
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
 no_edit_counter = Counter("recalculate_no_edit", "Number of noops made")
@@ -79,9 +80,6 @@ def _setup_updater(
     Returns:
         The constructed updater.
     """
-    print("Configuring calculate-primary logging")
-    setup_logging()
-
     print(f"Acquiring updater: {settings.integration}")
     updater_class = get_engagement_updater(settings.integration)
     print(f"Got class: {updater_class}")

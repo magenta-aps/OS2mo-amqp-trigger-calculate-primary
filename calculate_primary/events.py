@@ -9,7 +9,7 @@ from calculate_primary.main import calculate_user
 
 
 router = MORouter()
-logger = structlog.get_logger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 @router.register("engagement")
 async def calculate_engagement(
