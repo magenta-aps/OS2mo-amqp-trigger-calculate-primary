@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import datetime
-import logging
+import structlog
 from abc import ABC
 from abc import abstractmethod
 from functools import lru_cache
@@ -20,9 +20,7 @@ from ra_utils.tqdm_wrapper import tqdm
 
 from calculate_primary.config import Settings
 
-LOGGER_NAME = "updatePrimaryEngagements"
-logger = logging.getLogger(LOGGER_NAME)
-
+logger = structlog.stdlib.get_logger()
 
 class MultipleFixedPrimaries(Exception):
     """Thrown when multiple fixed primaries are found doing recalculate.

@@ -13,7 +13,7 @@ from prometheus_client import Info
 from calculate_primary.calculate_primary import get_engagement_updater
 from calculate_primary.common import MOPrimaryEngagementUpdater
 
-logger = structlog.get_logger(__name__)
+logger = structlog.stdlib.get_logger(__name__)
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
 no_edit_counter = Counter("recalculate_no_edit", "Number of noops made")
