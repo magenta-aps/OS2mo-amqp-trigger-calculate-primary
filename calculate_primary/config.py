@@ -7,7 +7,7 @@ from fastramqpi.config import Settings as FastRAMQPISettings
 from pydantic import BaseSettings
 
 
-class _Settings(BaseSettings):
+class Settings(BaseSettings):
     class Config:
         frozen = True
         env_nested_delimiter = "__"
