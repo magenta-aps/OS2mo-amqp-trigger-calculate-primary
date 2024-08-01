@@ -7,8 +7,6 @@ import sys
 
 import click
 
-from calculate_primary.common import LOGGER_NAME
-
 
 def get_engagement_updater(integration):
     if integration == "DEFAULT":
