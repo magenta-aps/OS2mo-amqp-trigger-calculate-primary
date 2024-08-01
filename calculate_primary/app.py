@@ -11,8 +11,8 @@ from calculate_primary.config import Settings
 from calculate_primary.main import _setup_updater
 
 
-def create_app(**kwargs: Any) -> FastAPI:
-    settings = Settings(**kwargs)
+def create_app() -> FastAPI:
+    settings = Settings()
     fastramqpi = FastRAMQPI(
         application_name="calculate_primary",
         settings=settings.fastramqpi,
