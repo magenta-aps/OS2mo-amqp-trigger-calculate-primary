@@ -84,6 +84,6 @@ def aio_pika_incoming_message(
     """Pytest fixture to construct a aio_pika IncomingMessage."""
     return IncomingMessage(aio_pika_delivered_message)
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def dummy_settings():
     yield Settings(mo_url="", amqp_integration="DEFAULT")
