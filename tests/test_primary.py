@@ -5,11 +5,15 @@ from unittest import TestCase
 from unittest.mock import call
 from unittest.mock import MagicMock
 
+from calculate_primary.config import Settings
 import hypothesis.strategies as st
 from hypothesis import given
 from more_itertools import unzip
 
 from calculate_primary.common import MOPrimaryEngagementUpdater
+
+#TODO: rewrite tests to be able to use fixture
+DUMMY_SETTINGS = Settings(mo_url="", amqp_integration="DEFAULT")
 
 class AttrDict(dict):
     """Enable dot.notation access for a dict object.
@@ -53,14 +57,11 @@ def engagements_at_date(date, engagements):
 
 
 class MOPrimaryEngagementUpdaterTest(MOPrimaryEngagementUpdater):
-    def __init__(self, *args, **kwargs):
-        self.morahelper_mock = MagicMock()
-        self.morahelper_mock.read_organisation.return_value = "org_uuid"
-
-        super().__init__(*args, **kwargs)
-
+    
     def _get_mora_helper(self, mora_base):
-        return self.morahelper_mock
+        helper = MagicMock()
+        helper.read_organisation.return_value = "org_uuid"
+        return helper
 
     def _find_primary_types(self):
         primary_dict = {
@@ -84,7 +85,7 @@ class Test_check_user(TestCase):
     """Test the check_user functions."""
 
     def setUp(self):
-        self.updater = MOPrimaryEngagementUpdaterTest({"mora.base": "mora_base_url"})
+        self.updater = MOPrimaryEngagementUpdaterTest(DUMMY_SETTINGS)
 
     def test_create(self):
         """Test that setUp runs without using it for anything."""
@@ -123,7 +124,7 @@ class Test_check_user(TestCase):
         cut_dates = list(engagement_map.keys()) + [
             datetime.datetime(9999, 12, 30, 0, 0)
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         # As engagements are made non-overlapping, we will always return only one,
         # namely the one found by lookup in our engagement_map
@@ -236,7 +237,7 @@ class Test_check_user(TestCase):
             datetime.datetime(1950, 1, 2),  # +1
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         check_filters = [
             # Filter out special primaries
@@ -314,8 +315,8 @@ class Test_recalculate_user(TestCase):
     """Test the recalculate_user functions."""
 
     def setUp(self):
-        self.updater = MOPrimaryEngagementUpdaterTest({"mora.base": "mora_base_url"})
-        self.updater.morahelper_mock._mo_post.return_value = AttrDict(
+        self.updater = MOPrimaryEngagementUpdaterTest(DUMMY_SETTINGS)
+        self.updater.helper._mo_post.return_value = AttrDict(
             {
                 "status_code": 200,
             }
@@ -338,7 +339,7 @@ class Test_recalculate_user(TestCase):
             datetime.datetime(2930, 1, 1),
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         engagement = {"uuid": "engagement_uuid", "primary": {"uuid": old_primary}}
         self.updater._read_engagement = lambda user_uuid, date: [engagement]
@@ -347,7 +348,7 @@ class Test_recalculate_user(TestCase):
         self.updater._ensure_primary.assert_called_with(
             engagement, old_primary, {"from": "2930-01-01", "to": None}
         )
-        self.updater.morahelper_mock._mo_post.assert_not_called()
+        self.updater.helper._mo_post.assert_not_called()
 
     @given(st.sampled_from(["non_primary_uuid", "unrelated_uuid"]))
     def test_recalculate_single_engagement_becoming_primary(self, old_primary):
@@ -356,7 +357,7 @@ class Test_recalculate_user(TestCase):
             datetime.datetime(2930, 1, 1),
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         engagement = {"uuid": "engagement_uuid", "primary": {"uuid": old_primary}}
         self.updater._read_engagement = lambda user_uuid, date: [engagement]
@@ -365,7 +366,7 @@ class Test_recalculate_user(TestCase):
         self.updater._ensure_primary.assert_called_with(
             engagement, "primary_uuid", {"from": "2930-01-01", "to": None}
         )
-        self.updater.morahelper_mock._mo_post.assert_called_with(
+        self.updater.helper._mo_post.assert_called_with(
             "details/edit",
             {
                 "type": "engagement",
@@ -392,7 +393,7 @@ class Test_recalculate_user(TestCase):
             datetime.datetime(2930, 1, 1),
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         self.updater._read_engagement = lambda user_uuid, date: engagements
 
@@ -410,7 +411,7 @@ class Test_recalculate_user(TestCase):
             ]
         )
         # Only one call, as non_primary is already non_primary
-        self.updater.morahelper_mock._mo_post.assert_called_with(
+        self.updater.helper._mo_post.assert_called_with(
             "details/edit",
             {
                 "type": "engagement",
@@ -437,7 +438,7 @@ class Test_recalculate_user(TestCase):
             datetime.datetime(2930, 1, 1),
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         self.updater._read_engagement = lambda user_uuid, date: engagements
 
@@ -455,7 +456,7 @@ class Test_recalculate_user(TestCase):
             ]
         )
         # Two calls, as primary is flipped for each
-        self.updater.morahelper_mock._mo_post.assert_has_calls(
+        self.updater.helper._mo_post.assert_has_calls(
             [
                 call(
                     "details/edit",
@@ -497,7 +498,7 @@ class Test_recalculate_user(TestCase):
             datetime.datetime(2930, 1, 1),
             datetime.datetime(9999, 12, 30, 0, 0),
         ]
-        self.updater.morahelper_mock.find_cut_dates.return_value = cut_dates
+        self.updater.helper.find_cut_dates.return_value = cut_dates
 
         self.updater._read_engagement = lambda user_uuid, date: engagements
 
@@ -516,4 +517,4 @@ class Test_recalculate_user(TestCase):
                 ),
             ]
         )
-        self.updater.morahelper_mock._mo_post.assert_not_called()
+        self.updater.helper._mo_post.assert_not_called()

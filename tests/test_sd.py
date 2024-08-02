@@ -2,20 +2,18 @@ from datetime import datetime
 from unittest.mock import MagicMock
 from uuid import uuid4
 
+from calculate_primary.config import Settings
+
 from .test_primary import MOPrimaryEngagementUpdaterTest
 from calculate_primary.sd import SDPrimaryEngagementUpdater
 
-
 class SDPrimaryEngagementUpdaterTest(SDPrimaryEngagementUpdater):
     # copied from test_primary but without overwriting _find_primary
-    def __init__(self, *args, **kwargs):
-        self.morahelper_mock = MagicMock()
-        self.morahelper_mock.read_organisation.return_value = "org_uuid"
-
-        super().__init__(*args, **kwargs)
-
+    
     def _get_mora_helper(self, mora_base):
-        return self.morahelper_mock
+        morahelper_mock = MagicMock()
+        morahelper_mock.read_organisation.return_value = "org_uuid"
+        return morahelper_mock
 
     def _find_primary_types(self):
         primary_dict = {
@@ -36,9 +34,9 @@ class ResponseOK:
     status_code = 200
 
 
-def test_sd_non_integer_user_key():
+def test_sd_non_integer_user_key(dummy_settings):
     # Arrange
-    updater = SDPrimaryEngagementUpdaterTest(mo_url="dummy", dry_run=False)
+    updater = SDPrimaryEngagementUpdaterTest(dummy_settings)
     updater.helper = MagicMock()
     updater.helper._mo_post.return_value = ResponseOK()
     uuid_primary_engagement = str(uuid4())
@@ -80,9 +78,9 @@ def test_sd_non_integer_user_key():
     )
 
 
-def test_sd_non_integer_user_key_only_engagement():
+def test_sd_non_integer_user_key_only_engagement(dummy_settings):
     # Arrange
-    updater = SDPrimaryEngagementUpdaterTest(mo_url="dummy", dry_run=False)
+    updater = SDPrimaryEngagementUpdaterTest(dummy_settings)
     updater.helper = MagicMock()
     updater.helper._mo_post.return_value = ResponseOK()
     uuid_primary_engagement = str(uuid4())
@@ -118,9 +116,9 @@ def test_sd_non_integer_user_key_only_engagement():
     )
 
 
-def test_sd_by_fraction():
+def test_sd_by_fraction(dummy_settings):
     # Arrange
-    updater = SDPrimaryEngagementUpdaterTest(mo_url="dummy", dry_run=False)
+    updater = SDPrimaryEngagementUpdaterTest(dummy_settings)
     updater.helper = MagicMock()
     updater.helper._mo_post.return_value = ResponseOK()
     uuid_primary_engagement = str(uuid4())
@@ -164,9 +162,9 @@ def test_sd_by_fraction():
     )
 
 
-def test_sd_by_user_key():
+def test_sd_by_user_key(dummy_settings):
     # Arrange
-    updater = SDPrimaryEngagementUpdaterTest(mo_url="dummy", dry_run=False)
+    updater = SDPrimaryEngagementUpdaterTest(dummy_settings)
     updater.helper = MagicMock()
     updater.helper._mo_post.return_value = ResponseOK()
     uuid_primary_engagement = str(uuid4())

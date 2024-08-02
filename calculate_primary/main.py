@@ -92,11 +92,7 @@ def _setup_updater(
     print(f"Acquiring updater: {settings.amqp_integration}")
     updater_class = get_engagement_updater(settings.amqp_integration)
     print(f"Got class: {updater_class}")
-    updater: MOPrimaryEngagementUpdater = updater_class(
-        mo_url= settings.mo_url,
-        eng_types_primary_order= settings.eng_types_primary_order,
-        dry_run=settings.dry_run,
-    )
+    updater: MOPrimaryEngagementUpdater = updater_class(settings)
     print(f"Got object: {updater}")
     return updater
 
