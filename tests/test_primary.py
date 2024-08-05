@@ -1,19 +1,23 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import datetime
 from collections import OrderedDict
 from operator import itemgetter
 from unittest import TestCase
-from unittest.mock import call
 from unittest.mock import MagicMock
+from unittest.mock import call
 
-from calculate_primary.config import Settings
 import hypothesis.strategies as st
 from hypothesis import given
 from more_itertools import unzip
 
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import Settings
 
-#TODO: rewrite tests to be able to use fixture
+# TODO: rewrite tests to be able to use fixture
 DUMMY_SETTINGS = Settings(mo_url="", amqp_integration="DEFAULT")
+
 
 class AttrDict(dict):
     """Enable dot.notation access for a dict object.
@@ -57,7 +61,6 @@ def engagements_at_date(date, engagements):
 
 
 class MOPrimaryEngagementUpdaterTest(MOPrimaryEngagementUpdater):
-    
     def _get_mora_helper(self, mora_base):
         helper = MagicMock()
         helper.read_organisation.return_value = "org_uuid"
@@ -80,8 +83,9 @@ class MOPrimaryEngagementUpdaterTest(MOPrimaryEngagementUpdater):
     def _find_primary(self, mo_engagements):
         return mo_engagements[0]["uuid"]
 
-@given(engagements=
-    st.lists(
+
+@given(
+    engagements=st.lists(
         st.sampled_from(
             [
                 "primary_uuid",
@@ -111,9 +115,7 @@ def test_check_user_non_overlapping(engagements, dummy_settings):
     #   from: (2930 + list index)
     #   to: (2930 + list index + 1)
     # or in the case of the last engagement until 9999-12-30
-    cut_dates = list(engagement_map.keys()) + [
-        datetime.datetime(9999, 12, 30, 0, 0)
-    ]
+    cut_dates = list(engagement_map.keys()) + [datetime.datetime(9999, 12, 30, 0, 0)]
     updater.helper.find_cut_dates.return_value = cut_dates
 
     # As engagements are made non-overlapping, we will always return only one,
@@ -123,8 +125,7 @@ def test_check_user_non_overlapping(engagements, dummy_settings):
     ]
     check_filters = [
         # Filter out special primaries
-        lambda user_uuid, eng: eng["primary"]["uuid"]
-        != "special_primary_uuid"
+        lambda user_uuid, eng: eng["primary"]["uuid"] != "special_primary_uuid"
     ]
 
     def gen_expected(date):
@@ -134,8 +135,11 @@ def test_check_user_non_overlapping(engagements, dummy_settings):
         special_count = 1 if uuid == "special_primary_uuid" else 0
         return 1, count, count - special_count
 
-    assert updater._check_user(check_filters, "user_uuid") == {date: gen_expected(date) for date in cut_dates[:-1]}
-    
+    assert updater._check_user(check_filters, "user_uuid") == {
+        date: gen_expected(date) for date in cut_dates[:-1]
+    }
+
+
 class Test_check_user(TestCase):
     """Test the check_user functions."""
 
@@ -145,8 +149,6 @@ class Test_check_user(TestCase):
     def test_create(self):
         """Test that setUp runs without using it for anything."""
         pass
-
-
 
     def engagements_fixture(self):
         """Engagement fixture for testing overlapping engagements."""
@@ -240,8 +242,7 @@ class Test_check_user(TestCase):
 
         check_filters = [
             # Filter out special primaries
-            lambda user_uuid, eng: eng["primary"]["uuid"]
-            != "special_primary_uuid"
+            lambda user_uuid, eng: eng["primary"]["uuid"] != "special_primary_uuid"
         ]
 
         self.assertEqual(
@@ -277,7 +278,8 @@ class Test_check_user(TestCase):
         outputter, strings, user_uuids, dates = unzip(
             self.updater._check_user_outputter([], "user_uuid")
         )
-        from calculate_primary.common import noop, logger
+        from calculate_primary.common import logger
+        from calculate_primary.common import noop
 
         self.assertEqual(
             list(outputter), [print, noop, logger.info, logger.info, print]

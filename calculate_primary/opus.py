@@ -1,8 +1,10 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import math
 
-from calculate_primary.common import logger
 from calculate_primary.common import MOPrimaryEngagementUpdater
-from calculate_primary.config import Settings
+from calculate_primary.common import logger
 
 
 class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
@@ -58,8 +60,13 @@ class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
         # If two engagements have the same engagement_type, the tie is broken by
         # picking the one with the lowest user-key integer.
         def get_engagement_type_id(engagement):
-            if engagement["engagement_type"]["uuid"] in self.settings.eng_types_primary_order:
-                return self.settings.eng_types_primary_order.index(engagement["engagement_type"]["uuid"])
+            if (
+                engagement["engagement_type"]["uuid"]
+                in self.settings.eng_types_primary_order
+            ):
+                return self.settings.eng_types_primary_order.index(
+                    engagement["engagement_type"]["uuid"]
+                )
             return math.inf
 
         def get_engagement_order(engagement):

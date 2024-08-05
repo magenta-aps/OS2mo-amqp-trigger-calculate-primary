@@ -1,15 +1,16 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 from datetime import datetime
 from unittest.mock import MagicMock
 from uuid import uuid4
 
-from calculate_primary.config import Settings
-
-from .test_primary import MOPrimaryEngagementUpdaterTest
 from calculate_primary.sd import SDPrimaryEngagementUpdater
+
 
 class SDPrimaryEngagementUpdaterTest(SDPrimaryEngagementUpdater):
     # copied from test_primary but without overwriting _find_primary
-    
+
     def _get_mora_helper(self, mora_base):
         morahelper_mock = MagicMock()
         morahelper_mock.read_organisation.return_value = "org_uuid"

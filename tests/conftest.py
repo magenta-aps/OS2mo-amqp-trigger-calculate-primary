@@ -6,7 +6,6 @@
 from unittest.mock import AsyncMock
 from uuid import UUID
 
-from calculate_primary.config import Settings
 import pytest
 from aio_pika import DeliveryMode
 from aio_pika import IncomingMessage
@@ -16,7 +15,8 @@ from pamqp.commands import Basic
 from pydantic import parse_obj_as
 from ra_utils.attrdict import attrdict
 from ramqp.moqp import PayloadType
-from tests.test_primary import MOPrimaryEngagementUpdaterTest
+
+from calculate_primary.config import Settings
 
 
 @pytest.fixture
@@ -83,6 +83,7 @@ def aio_pika_incoming_message(
 ) -> IncomingMessage:
     """Pytest fixture to construct a aio_pika IncomingMessage."""
     return IncomingMessage(aio_pika_delivered_message)
+
 
 @pytest.fixture(scope="module")
 def dummy_settings():
