@@ -1,7 +1,10 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import datetime
 
-from calculate_primary.common import logger
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.common import logger
 
 
 # This function has been copied directly from the SD-integration repo as
@@ -94,13 +97,12 @@ class SDPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):
 
     def _find_primary(self, mo_engagements):
         def set_primary_score(mo_engagement):
-            # Engagements with non-integer user_keys are only primary if no other engagements are present 
+            # Engagements with non-integer user_keys are only primary if no other engagements are present
             try:
                 mo_engagement["primary_score"] = int(mo_engagement["user_key"])
             except ValueError:
                 mo_engagement["primary_score"] = 100000
 
-        
         for e in mo_engagements:
             set_primary_score(e)
 

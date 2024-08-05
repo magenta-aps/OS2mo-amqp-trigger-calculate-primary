@@ -4,13 +4,9 @@
 """This module tests that metrics are updated as expected."""
 from typing import Any
 from typing import cast
-from typing import Dict
-from unittest.mock import mock_open
-from unittest.mock import patch
 from uuid import UUID
 from uuid import uuid4
 
-import pytest
 from ra_utils.attrdict import attrdict
 
 from calculate_primary.main import calculate_user

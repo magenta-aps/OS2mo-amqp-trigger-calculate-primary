@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import datetime
 import logging
 from abc import ABC
@@ -11,11 +14,11 @@ from uuid import UUID
 from more_itertools import ilen
 from more_itertools import only
 from more_itertools import pairwise
-from calculate_primary.config import Settings
 from os2mo_helpers.mora_helpers import MoraHelper
 from ra_utils.deprecation import deprecated
 from ra_utils.tqdm_wrapper import tqdm
 
+from calculate_primary.config import Settings
 
 LOGGER_NAME = "updatePrimaryEngagements"
 logger = logging.getLogger(LOGGER_NAME)

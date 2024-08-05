@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Magenta ApS
+#
+# SPDX-License-Identifier: MPL-2.0
 import json
 import logging
 import sys
@@ -28,9 +31,7 @@ def setup_logging():
 
 def get_engagement_updater(integration):
     if integration == "DEFAULT":
-        from calculate_primary.default import (
-            DefaultPrimaryEngagementUpdater,
-        )
+        from calculate_primary.default import DefaultPrimaryEngagementUpdater
 
         return DefaultPrimaryEngagementUpdater
     if integration == "SD":
@@ -71,16 +72,25 @@ def get_engagement_updater(integration):
 )
 @click.option("--recalculate-user", type=click.UUID, help="Recalculate one user")
 def calculate_primary(
-    integration, dry_run, mo_url, eng_types_primary_order: str,
-    check_all, check_user, recalculate_all, recalculate_user
+    integration,
+    dry_run,
+    mo_url,
+    eng_types_primary_order: str,
+    check_all,
+    check_user,
+    recalculate_all,
+    recalculate_user,
 ):
     """Tool to work with primary engagement(s)."""
     setup_logging()
     # Acquire the configured updater
 
-
     updater_class = get_engagement_updater(integration=integration)
-    updater = updater_class(dry_run=dry_run, mo_url=mo_url, eng_types_primary_order=json.loads(eng_types_primary_order))
+    updater = updater_class(
+        dry_run=dry_run,
+        mo_url=mo_url,
+        eng_types_primary_order=json.loads(eng_types_primary_order),
+    )
 
     # Run the specified operation
     if check_all:

@@ -3,20 +3,12 @@
 # SPDX-License-Identifier: MPL-2.0
 """Event-driven recalculate primary program."""
 import asyncio
-import json
 from functools import partial
-from pathlib import Path
-from typing import List
 from uuid import UUID
 
 import click
-from calculate_primary.calculate_primary import get_engagement_updater
-from calculate_primary.calculate_primary import setup_logging
-from calculate_primary.common import MOPrimaryEngagementUpdater
-from calculate_primary.config import Settings
 from prometheus_client import Counter
 from prometheus_client import Gauge
-from prometheus_client import Info
 from prometheus_client import start_http_server
 from ramqp.moqp import MOAMQPSystem
 from ramqp.moqp import ObjectType
@@ -24,6 +16,10 @@ from ramqp.moqp import PayloadType
 from ramqp.moqp import RequestType
 from ramqp.moqp import ServiceType
 
+from calculate_primary.calculate_primary import get_engagement_updater
+from calculate_primary.calculate_primary import setup_logging
+from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import Settings
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
 no_edit_counter = Counter("recalculate_no_edit", "Number of noops made")
@@ -55,9 +51,7 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
         edit_counter.inc(number_of_edits)
 
 
-def _setup_updater(
-    settings: Settings
-) -> MOPrimaryEngagementUpdater:
+def _setup_updater(settings: Settings) -> MOPrimaryEngagementUpdater:
     """Exchange integration to updater.
 
     Args:
@@ -182,7 +176,7 @@ def cli(
     """Click entrypoint."""
     _setup_metrics()
 
-    settings=Settings()
+    settings = Settings()
     updater = _setup_updater(settings=settings)
     amqp_url = f"amqp://{username}:{password}@{host}:{port}"
     _run_amqp(updater, amqp_url, exchange)
