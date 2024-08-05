@@ -45,8 +45,7 @@ include:
 
   - project: labs/salt-automation
     file:
-      # TODO: enable pre-commit again when ready
-      # - gitlab-ci-templates/common/pre-commit.v1.yml
+      - gitlab-ci-templates/common/pre-commit.v1.yml
       - gitlab-ci-templates/python/pytest-meta.v1.yml
 
 workflow:
