@@ -11,6 +11,7 @@ from uuid import UUID
 from more_itertools import ilen
 from more_itertools import only
 from more_itertools import pairwise
+from calculate_primary.config import Settings
 from os2mo_helpers.mora_helpers import MoraHelper
 from ra_utils.deprecation import deprecated
 from ra_utils.tqdm_wrapper import tqdm
@@ -45,11 +46,9 @@ def noop(*args, **kwargs):
 
 
 class MOPrimaryEngagementUpdater(ABC):
-    def __init__(self, mo_url, dry_run=False, **kwargs):
-        
-        self.dry_run = dry_run
-
-        self.helper = self._get_mora_helper(mo_url)
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.helper = self._get_mora_helper(settings.mo_url)
 
         # List of engagement filters to apply to check / recalculate respectively
         # NOTE: Should be overridden by subclasses
@@ -362,7 +361,7 @@ class MOPrimaryEngagementUpdater(ABC):
         }
         logger.debug("Edit payload: {}".format(payload))
 
-        if not self.dry_run:
+        if not self.settings.dry_run:
             response = self.helper._mo_post("details/edit", payload)
             assert response.status_code in (200, 400)
             if response.status_code == 400:

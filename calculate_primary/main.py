@@ -13,6 +13,7 @@ import click
 from calculate_primary.calculate_primary import get_engagement_updater
 from calculate_primary.calculate_primary import setup_logging
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import Settings
 from prometheus_client import Counter
 from prometheus_client import Gauge
 from prometheus_client import Info
@@ -75,17 +76,12 @@ def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
 
 
 def _setup_updater(
-    integration: str,
-    dry_run: bool,
-    mo_url: str,
-    eng_types_primary_order: List[str],
+    settings: Settings
 ) -> MOPrimaryEngagementUpdater:
     """Exchange integration to updater.
 
     Args:
-        integration: The integration to construct.
-        dry_run: Whether to dry-run the updater.
-        mo_url: URL for OS2mo.
+        settings
 
     Returns:
         The constructed updater.
@@ -93,14 +89,10 @@ def _setup_updater(
     print("Configuring calculate-primary logging")
     setup_logging()
 
-    print(f"Acquiring updater: {integration}")
-    updater_class = get_engagement_updater(integration)
+    print(f"Acquiring updater: {settings.amqp_integration}")
+    updater_class = get_engagement_updater(settings.amqp_integration)
     print(f"Got class: {updater_class}")
-    updater: MOPrimaryEngagementUpdater = updater_class(
-        mo_url= mo_url,
-        eng_types_primary_order= eng_types_primary_order,
-        dry_run=dry_run,
-    )
+    updater: MOPrimaryEngagementUpdater = updater_class(settings)
     print(f"Got object: {updater}")
     return updater
 
@@ -169,13 +161,6 @@ def _run_amqp(
 
 @click.command()
 @click.option(
-    "--integration",
-    type=click.Choice(["DEFAULT", "SD", "OPUS"], case_sensitive=False),
-    required=True,
-    help="Integration to use",
-)
-@click.option("--dry-run", is_flag=True, type=click.BOOL, help="Make no changes")
-@click.option(
     "--host",
     default="localhost",
     help="AMQP host",
@@ -207,35 +192,19 @@ def _run_amqp(
     help="AMQP exchange",
     show_default=True,
 )
-@click.option(
-    "--mo-url",
-    help="OS2mo URL",
-    required=True,
-    envvar="MO_URL",
-)
-@click.option(
-    "--eng-types-primary-order",
-    help="Priority of engagement types. Only relevant for OPUS",
-    default="[]",
-    envvar="ENG_TYPES_PRIMARY_ORDER",
-)
 # pylint: disable=too-many-arguments
 def cli(
-    integration: str,
-    dry_run: bool,
     host: str,
     port: int,
     username: str,
     password: str,
     exchange: str,
-    mo_url: str,
-    eng_types_primary_order: str,
 ) -> None:
     """Click entrypoint."""
     _setup_metrics()
 
-    opus_eng_types_primary_order: List[str] = json.loads(eng_types_primary_order)
-    updater = _setup_updater(integration, dry_run, mo_url, opus_eng_types_primary_order)
+    settings=Settings()
+    updater = _setup_updater(settings=settings)
     amqp_url = f"amqp://{username}:{password}@{host}:{port}"
     _run_amqp(updater, amqp_url, exchange)
 
