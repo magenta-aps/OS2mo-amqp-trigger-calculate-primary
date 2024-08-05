@@ -30,26 +30,6 @@ no_edit_counter = Counter("recalculate_no_edit", "Number of noops made")
 last_processing = Gauge(
     "recalculate_last_processing", "Timestamp of the last processing"
 )
-version_info = Info("recalculate_build_version", "Version information")
-
-
-def export_version_metric() -> None:
-    """Read local files and update version_info metric.
-
-    Called for the side-effect of updating the metrics.
-
-    Returns:
-        None
-    """
-    poetry_version = Path("VERSION").read_text("utf-8").strip()
-    commit_hash = Path("HASH").read_text("utf-8").strip()
-
-    version_info.info(
-        {
-            "version": poetry_version,
-            "commit_hash": commit_hash,
-        }
-    )
 
 
 def calculate_user(updater: MOPrimaryEngagementUpdater, uuid: UUID) -> None:
@@ -106,7 +86,6 @@ def _setup_metrics() -> None:
         None
     """
     print("Start metrics server")
-    export_version_metric()
     # TODO: Consider ASGI server and make_asgi_app
     start_http_server(8000)
 
