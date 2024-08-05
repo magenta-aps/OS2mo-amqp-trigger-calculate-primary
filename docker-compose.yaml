@@ -1,12 +1,9 @@
 # SPDX-FileCopyrightText: Magenta ApS
 #
 # SPDX-License-Identifier: MPL-2.0
-
-version: "3.9"
 services:
-  consumer:
+  calculate-primary:
     build: .
-    container_name: amqp_trigger_recalculate_primary
     environment:
       AMQP_HOST: msg-broker
       AMQP_PASSWORD: guest
@@ -18,12 +15,12 @@ services:
       CLIENT_SECRET: "603f1c82-d012-4d04-9382-dbe659c533fb"
       AUTH_REALM: "mo"
       AUTH_SERVER: "http://keycloak:8080/auth"
+    volumes:
+      - .:/app
     networks:
       - os2mo_default
-    ports:
-      - "8000:8000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://consumer:8000/metrics"]
+      test: ["CMD", "curl", "-f", "http://calculate-primary:8000/metrics"]
       interval: 5s
       timeout: 5s
       retries: 3

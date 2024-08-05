@@ -15,10 +15,8 @@ from ra_utils.attrdict import attrdict
 
 from calculate_primary.main import calculate_user
 from calculate_primary.main import edit_counter
-from calculate_primary.main import export_version_metric
 from calculate_primary.main import last_processing
 from calculate_primary.main import no_edit_counter
-from calculate_primary.main import version_info
 
 
 def get_metric_value(metric: Any) -> float:
@@ -132,38 +130,3 @@ def test_calculate_user_metrics_edits() -> None:
 
     assert get_metric_value(edit_counter) == 6942.0
     assert get_metric_value(no_edit_counter) == 3.0
-
-
-def test_version_metric() -> None:
-    """Test that the version metric works as expected."""
-
-    def fetch_version_info() -> Dict[str, str]:
-        # pylint: disable=protected-access
-        return version_info._value
-
-    assert fetch_version_info() == {}
-
-    with pytest.raises(FileNotFoundError):
-        export_version_metric()
-
-    with patch("pathlib.Path.open", mock_open(read_data="dummy")):
-        export_version_metric()
-
-    assert fetch_version_info() == {"version": "dummy", "commit_hash": "dummy"}
-
-    def files_for_test(path: str, **_: Dict[str, Any]) -> Any:
-        contents = {
-            "VERSION": "1.2.3",
-            "HASH": "39e444a4e58e425ca64cc76604e81a14e4a42b6b",
-        }
-        data = contents[str(path)]
-        mock = mock_open(read_data=data)
-        return mock.return_value
-
-    with patch("pathlib.Path.open", files_for_test):
-        export_version_metric()
-
-    assert fetch_version_info() == {
-        "version": "1.2.3",
-        "commit_hash": "39e444a4e58e425ca64cc76604e81a14e4a42b6b",
-    }
