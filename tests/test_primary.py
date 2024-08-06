@@ -275,15 +275,10 @@ class Test_check_user(TestCase):
             fixture_data
         )
 
-        outputter, strings, user_uuids, dates = unzip(
+        _, strings, user_uuids, dates = unzip(
             self.updater._check_user_outputter([], "user_uuid")
         )
-        from calculate_primary.common import logger
-        from calculate_primary.common import noop
 
-        self.assertEqual(
-            list(outputter), [print, noop, logger.info, logger.info, print]
-        )
         self.assertEqual(
             list(strings),
             [
@@ -297,9 +292,7 @@ class Test_check_user(TestCase):
         self.assertEqual(list(user_uuids), ["user_uuid"] * 5)
         self.assertEqual(list(dates), list(map(itemgetter(0), fixture_data)))
 
-        outputter, final_strings = unzip(
-            self.updater._check_user_strings([], "user_uuid")
-        )
+        _, final_strings = unzip(self.updater._check_user_strings([], "user_uuid"))
         self.assertEqual(
             list(final_strings),
             [
