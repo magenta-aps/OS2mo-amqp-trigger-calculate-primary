@@ -14,7 +14,7 @@ keywords = ["os2mo", "amqp"]
 [tool.poetry.dependencies]
 python = "^3.11"
 click = "^8.0.1"
-os2mo-data-import = "^6.1.0"
+os2mo-data-import = "^6.2.0"
 ra-utils = "^1.11.10"
 tenacity = "^8.3.0"
 pydantic = "^1.10.17"
