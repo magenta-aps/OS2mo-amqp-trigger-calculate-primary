@@ -6,6 +6,7 @@ from fastramqpi.main import FastRAMQPI
 
 from calculate_primary import events
 from calculate_primary.config import Settings
+from calculate_primary.depends import GraphQLClient
 from calculate_primary.main import _setup_updater
 
 
@@ -15,6 +16,7 @@ def create_app() -> FastAPI:
         application_name="calculate_primary",
         settings=settings.fastramqpi,
         graphql_version=22,
+        graphql_client_cls=GraphQLClient,
     )
     updater = _setup_updater(
         settings,
