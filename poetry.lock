@@ -1402,13 +1402,13 @@ et-xmlfile = "*"
 
 [[package]]
 name = "os2mo-data-import"
-version = "6.1.0"
+version = "6.2.0"
 description = "A set of tools for OS2MO data import and export"
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "os2mo_data_import-6.1.0-py3-none-any.whl", hash = "sha256:03ed9ac525b5bf2f4f7ff062ec7ea0e5b16001ec2e6f7f32f7d15be7f5afc9a3"},
-    {file = "os2mo_data_import-6.1.0.tar.gz", hash = "sha256:8f20740f89aea44c34ec3e63dc84ad7ecead240df90ed6565e820f8542245a9b"},
+    {file = "os2mo_data_import-6.2.0-py3-none-any.whl", hash = "sha256:08a937fc3c019fca94f4edc569765b47bc07e60f8e2e966bd793a8b28ac1c442"},
+    {file = "os2mo_data_import-6.2.0.tar.gz", hash = "sha256:017b63b9d139e7f39198cb2fa2afabaaa18a1f9dbe059e803dde12738ccd2dc8"},
 ]
 
 [package.dependencies]
@@ -2522,4 +2522,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "b4d0ede2a3b83ed9e220708462812163621da33e28ab8d52fa234f8e7481f744"
+content-hash = "4e8c1aa68d5baceea73da5d29ea20612479e4f762cd2925b13ced2536e160695"
