@@ -7,8 +7,8 @@ from uuid import UUID
 from prometheus_client import Counter
 from prometheus_client import Gauge
 
-from calculate_primary.calculate_primary import get_engagement_updater
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.common import get_engagement_updater
 from calculate_primary.config import Settings
 
 edit_counter = Counter("recalculate_edit", "Number of edits made")
