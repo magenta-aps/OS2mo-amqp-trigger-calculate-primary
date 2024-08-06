@@ -3,88 +3,53 @@
 # SPDX-License-Identifier: MPL-2.0
 # pylint: disable=redefined-outer-name,protected-access
 """This module contains pytest specific code, fixtures and helpers."""
-from unittest.mock import AsyncMock
-from uuid import UUID
+import os
+from typing import Iterator
 
 import pytest
-from aio_pika import DeliveryMode
-from aio_pika import IncomingMessage
-from aio_pika import Message
-from aiormq.abc import DeliveredMessage
-from pamqp.commands import Basic
-from pydantic import parse_obj_as
-from ra_utils.attrdict import attrdict
-from ramqp.moqp import PayloadType
 
 from calculate_primary.config import Settings
 
 
 @pytest.fixture
-def mo_payload() -> PayloadType:
-    """Pytest fixture to construct a MO PayloadType."""
-    return parse_obj_as(
-        PayloadType,
-        {
-            "uuid": UUID("00000000-0000-0000-0000-000000000000"),
-            "object_uuid": UUID("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-            "time": "2000-01-01T00:00:00.000000",
-        },
-    )
+def settings_overrides() -> Iterator[dict[str, str]]:
+    """Fixture to construct dictionary of minimal overrides for valid settings.
+
+    Yields:
+        Minimal set of overrides.
+    """
+    overrides = {
+        "amqp_integration": "DEFAULT",
+        "CLIENT_ID": "Foo",
+        "CLIENT_SECRET": "bar",
+        "FASTRAMQPI__AMQP__URL": "amqp://guest:guest@msg-broker:5672/",
+    }
+    yield overrides
 
 
 @pytest.fixture
-def aio_pika_message(mo_payload: PayloadType) -> Message:
-    """Pytest fixture to construct a aio_pika Message."""
-    return Message(body=mo_payload.json().encode("utf-8"))
+def load_settings_overrides(
+    monkeypatch: pytest.MonkeyPatch,
+    settings_overrides: dict[str, str],
+) -> Iterator[dict[str, str]]:
+    """Fixture to set happy-path settings overrides as environmental variables.
+
+    Note:
+        Only loads environmental variables, if variables are not already set.
+
+    Args:
+        settings_overrides: The list of settings to load in.
+        monkeypatch: Pytest MonkeyPatch instance to set environmental variables.
+
+    Yields:
+        Minimal set of overrides.
+    """
+    for key, value in settings_overrides.items():
+        if os.environ.get(key) is None:
+            monkeypatch.setenv(key, value)
+    yield settings_overrides
 
 
 @pytest.fixture
-def aio_pika_delivered_message(aio_pika_message: Message) -> DeliveredMessage:
-    """Pytest fixture to construct a aiormq DeliveredMessage."""
-    return DeliveredMessage(
-        # channel should be an AbstractChannel
-        channel=AsyncMock(),  # type: ignore
-        header=attrdict(
-            {
-                "properties": attrdict(
-                    {
-                        "expiration": None,
-                        "content_type": None,
-                        "content_encoding": None,
-                        "delivery_mode": DeliveryMode.NOT_PERSISTENT,
-                        "headers": {},
-                        "priority": 0,
-                        "correlation_id": None,
-                        "reply_to": None,
-                        "message_id": "6800cb934bf94cc68009fe04ac91c972",
-                        "timestamp": None,
-                        "message_type": None,
-                        "user_id": None,
-                        "app_id": None,
-                        "cluster_id": "",
-                    }
-                )
-            }
-        ),
-        body=aio_pika_message.body,
-        delivery=Basic.GetOk(
-            delivery_tag=1,
-            redelivered=False,
-            exchange="9t6wzzmlBcaopTLF1aOPgnnd8szMSU",
-            routing_key="employee.employee.create",
-            message_count=None,
-        ),
-    )
-
-
-@pytest.fixture
-def aio_pika_incoming_message(
-    aio_pika_delivered_message: DeliveredMessage,
-) -> IncomingMessage:
-    """Pytest fixture to construct a aio_pika IncomingMessage."""
-    return IncomingMessage(aio_pika_delivered_message)
-
-
-@pytest.fixture(scope="module")
-def dummy_settings():
-    yield Settings(mo_url="", amqp_integration="DEFAULT")
+def dummy_settings(load_settings_overrides) -> Iterator[dict[str, str]]:
+    yield Settings()
