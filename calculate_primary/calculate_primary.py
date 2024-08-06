@@ -2,31 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
-import logging
-import sys
 
 import click
-
-from calculate_primary.common import LOGGER_NAME
-
-# from click_option_group import RequiredMutuallyExclusiveOptionGroup, optgroup
-
-
-def setup_logging():
-    LOG_LEVEL = logging.DEBUG
-
-    detail_logging = ("mora-helper", LOGGER_NAME)
-    for name in logging.root.manager.loggerDict:
-        if name in detail_logging:
-            logging.getLogger(name).setLevel(LOG_LEVEL)
-        else:
-            logging.getLogger(name).setLevel(logging.ERROR)
-
-    logging.basicConfig(
-        format="%(levelname)s %(asctime)s %(name)s %(message)s",
-        level=LOG_LEVEL,
-        stream=sys.stdout,
-    )
 
 
 def get_engagement_updater(integration):
@@ -82,7 +59,6 @@ def calculate_primary(
     recalculate_user,
 ):
     """Tool to work with primary engagement(s)."""
-    setup_logging()
     # Acquire the configured updater
 
     updater_class = get_engagement_updater(integration=integration)

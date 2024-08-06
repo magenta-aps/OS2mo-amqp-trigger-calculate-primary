@@ -17,7 +17,6 @@ from ramqp.moqp import RequestType
 from ramqp.moqp import ServiceType
 
 from calculate_primary.calculate_primary import get_engagement_updater
-from calculate_primary.calculate_primary import setup_logging
 from calculate_primary.common import MOPrimaryEngagementUpdater
 from calculate_primary.config import Settings
 
@@ -61,7 +60,6 @@ def _setup_updater(settings: Settings) -> MOPrimaryEngagementUpdater:
         The constructed updater.
     """
     print("Configuring calculate-primary logging")
-    setup_logging()
 
     print(f"Acquiring updater: {settings.amqp_integration}")
     updater_class = get_engagement_updater(settings.amqp_integration)
