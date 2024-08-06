@@ -21,20 +21,18 @@ ra-utils = "^1.11.10"
 tenacity = "^8.3.0"
 pydantic = "^1.10.17"
 
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-flake8 = "^4.0.1"
-mypy = "^0.942"
-pre-commit = "^2.18.1"
-pytest = "6.2.5"
-ra-utils = "^1.0.0"
-reorder-python-imports = "^3.0.1"
-
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.2"
 pytest-split = "^0.8.0"
 pytest-cov = "^4.0.0"
 hypothesis = "^6.103.1"
 aio-pika = "^7.2.0"
+ra-utils = "^1.0.0"
+
+[tool.poetry.group.pre-commit.dependencies]
+pre-commit = "^3.8.0"
+ruff = "^0.5.6"
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -51,8 +49,8 @@ check_untyped_defs = "True"
 disallow_untyped_defs = "True"
 plugins = "pydantic.mypy"
 
-[tool.flake8]
-max-line-length = 88
-exclude = [
-".git", "__pycache__", ".mypy_cache", ".pytest_cache", ".venv", ".gitlab"
-]
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
