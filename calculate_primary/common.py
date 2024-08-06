@@ -23,6 +23,22 @@ from calculate_primary.config import Settings
 logger = structlog.stdlib.get_logger()
 
 
+def get_engagement_updater(integration):
+    if integration == "DEFAULT":
+        from calculate_primary.default import DefaultPrimaryEngagementUpdater
+
+        return DefaultPrimaryEngagementUpdater
+    if integration == "SD":
+        from calculate_primary.sd import SDPrimaryEngagementUpdater
+
+        return SDPrimaryEngagementUpdater
+    if integration == "OPUS":
+        from calculate_primary.opus import OPUSPrimaryEngagementUpdater
+
+        return OPUSPrimaryEngagementUpdater
+    raise NotImplementedError("Unexpected integration: " + str(integration))
+
+
 class MultipleFixedPrimaries(Exception):
     """Thrown when multiple fixed primaries are found doing recalculate.
 
