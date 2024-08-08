@@ -1,14 +1,16 @@
 # SPDX-FileCopyrightText: Magenta ApS <https://magenta.dk>
 # SPDX-License-Identifier: MPL-2.0
+import structlog
 from fastramqpi.ramqp.mo import MORouter
 from fastramqpi.ramqp.mo import PayloadUUID
 from more_itertools import only
 
 from calculate_primary import depends
-from calculate_primary.common import logger
 from calculate_primary.main import calculate_user
 
 router = MORouter()
+
+logger = structlog.stdlib.get_logger()
 
 
 @router.register("engagement")
