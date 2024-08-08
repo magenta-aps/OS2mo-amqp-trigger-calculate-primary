@@ -9,12 +9,12 @@ from unittest.mock import MagicMock
 from unittest.mock import call
 
 import hypothesis.strategies as st
-from fastramqpi.config import Settings as FastRAMQPISettings
-from fastramqpi.ramqp.config import AMQPConnectionSettings
 from hypothesis import given
 from more_itertools import unzip
 
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import AMQPConnectionSettings
+from calculate_primary.config import FastRAMQPISettings
 from calculate_primary.config import Settings
 
 # TODO: rewrite tests to be able to use fixture
