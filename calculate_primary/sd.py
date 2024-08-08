@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import datetime
 
+import structlog
+
 from calculate_primary.common import MOPrimaryEngagementUpdater
-from calculate_primary.common import logger
+
+logger = structlog.stdlib.get_logger()
 
 
 # This function has been copied directly from the SD-integration repo as
