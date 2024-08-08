@@ -19,7 +19,7 @@ def settings_overrides() -> Iterator[dict[str, str]]:
         Minimal set of overrides.
     """
     overrides = {
-        "amqp_integration": "DEFAULT",
+        "integration": "DEFAULT",
         "CLIENT_ID": "Foo",
         "CLIENT_SECRET": "bar",
         "FASTRAMQPI__AMQP__URL": "amqp://guest:guest@msg-broker:5672/",

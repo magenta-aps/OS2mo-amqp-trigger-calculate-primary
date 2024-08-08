@@ -27,6 +27,6 @@ class Settings(BaseSettings):
 
     fastramqpi: FastRAMQPISettings
 
-    amqp_integration: Literal["DEFAULT", "OPUS", "SD"]
+    integration: Literal["DEFAULT", "OPUS", "SD"]
     dry_run: bool = False
     eng_types_primary_order: list[UUID] = []
