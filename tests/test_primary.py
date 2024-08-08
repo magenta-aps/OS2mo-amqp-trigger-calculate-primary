@@ -23,7 +23,7 @@ DUMMY_FASTRAMQPI = FastRAMQPISettings(
     client_secret="secret",
     amqp=AMQPConnectionSettings(url="amqp://guest:guest@msg-broker:5672/"),
 )
-DUMMY_SETTINGS = Settings(fastramqpi=DUMMY_FASTRAMQPI, amqp_integration="DEFAULT")
+DUMMY_SETTINGS = Settings(fastramqpi=DUMMY_FASTRAMQPI, integration="DEFAULT")
 
 
 class AttrDict(dict):

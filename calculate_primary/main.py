@@ -50,8 +50,8 @@ def _setup_updater(settings: Settings) -> MOPrimaryEngagementUpdater:
     Returns:
         The constructed updater.
     """
-    print(f"Acquiring updater: {settings.amqp_integration}")
-    updater_class = get_engagement_updater(settings.amqp_integration)
+    print(f"Acquiring updater: {settings.integration}")
+    updater_class = get_engagement_updater(settings.integration)
     print(f"Got class: {updater_class}")
     updater: MOPrimaryEngagementUpdater = updater_class(settings)
     print(f"Got object: {updater}")
