@@ -23,6 +23,22 @@ from calculate_primary.config import Settings
 logger = structlog.stdlib.get_logger()
 
 
+def get_engagement_updater(integration):
+    if integration == "DEFAULT":
+        from calculate_primary.default import DefaultPrimaryEngagementUpdater
+
+        return DefaultPrimaryEngagementUpdater
+    if integration == "SD":
+        from calculate_primary.sd import SDPrimaryEngagementUpdater
+
+        return SDPrimaryEngagementUpdater
+    if integration == "OPUS":
+        from calculate_primary.opus import OPUSPrimaryEngagementUpdater
+
+        return OPUSPrimaryEngagementUpdater
+    raise NotImplementedError("Unexpected integration: " + str(integration))
+
+
 class MultipleFixedPrimaries(Exception):
     """Thrown when multiple fixed primaries are found doing recalculate.
 
@@ -50,7 +66,7 @@ def noop(*args, **kwargs):
 class MOPrimaryEngagementUpdater(ABC):
     def __init__(self, settings: Settings):
         self.settings = settings
-        self.helper = self._get_mora_helper(settings.mo_url)
+        self.helper = self._get_mora_helper(settings)
 
         # List of engagement filters to apply to check / recalculate respectively
         # NOTE: Should be overridden by subclasses
@@ -59,12 +75,16 @@ class MOPrimaryEngagementUpdater(ABC):
 
         self.primary_types, self.primary = self._find_primary_types()
 
-    def _get_mora_helper(self, mora_base):
-        """Construct a MoraHelper object.
-
-        Split out solely to ease testing.
-        """
-        return MoraHelper(hostname=mora_base, use_cache=False)
+    def _get_mora_helper(self, settings: Settings):
+        """Construct a MoraHelper object."""
+        return MoraHelper(
+            hostname=settings.fastramqpi.mo_url,
+            auth_server=settings.fastramqpi.auth_server,
+            client_id=settings.fastramqpi.client_id,
+            client_secret=settings.fastramqpi.client_secret.get_secret_value(),
+            auth_realm=settings.fastramqpi.auth_realm,
+            use_cache=False,
+        )
 
     def _get_person(self, cpr=None, uuid=None, mo_person=None):
         """Fetch a person from MO.

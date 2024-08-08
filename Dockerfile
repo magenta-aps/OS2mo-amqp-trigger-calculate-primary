@@ -25,7 +25,8 @@ RUN poetry install --no-root --only=main
 WORKDIR /app
 
 COPY calculate_primary ./calculate_primary
-CMD [ "python","-m", "calculate_primary.main" ]
+
+CMD ["uvicorn", "--factory", "calculate_primary.app:create_app", "--host", "0.0.0.0"]
 
 # Add build version to the environment last to avoid build cache misses
 ARG COMMIT_TAG

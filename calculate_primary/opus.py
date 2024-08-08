@@ -3,8 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 import math
 
+import structlog
+
 from calculate_primary.common import MOPrimaryEngagementUpdater
-from calculate_primary.common import logger
+
+logger = structlog.stdlib.get_logger()
 
 
 class OPUSPrimaryEngagementUpdater(MOPrimaryEngagementUpdater):

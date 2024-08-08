@@ -13,10 +13,17 @@ from hypothesis import given
 from more_itertools import unzip
 
 from calculate_primary.common import MOPrimaryEngagementUpdater
+from calculate_primary.config import AMQPConnectionSettings
+from calculate_primary.config import FastRAMQPISettings
 from calculate_primary.config import Settings
 
 # TODO: rewrite tests to be able to use fixture
-DUMMY_SETTINGS = Settings(mo_url="", amqp_integration="DEFAULT")
+DUMMY_FASTRAMQPI = FastRAMQPISettings(
+    client_id="calculate_primary",
+    client_secret="secret",
+    amqp=AMQPConnectionSettings(url="amqp://guest:guest@msg-broker:5672/"),
+)
+DUMMY_SETTINGS = Settings(fastramqpi=DUMMY_FASTRAMQPI, integration="DEFAULT")
 
 
 class AttrDict(dict):
@@ -97,8 +104,8 @@ class MOPrimaryEngagementUpdaterTest(MOPrimaryEngagementUpdater):
         )
     )
 )
-def test_check_user_non_overlapping(engagements, dummy_settings):
-    updater = MOPrimaryEngagementUpdaterTest(dummy_settings)
+def test_check_user_non_overlapping(engagements):
+    updater = MOPrimaryEngagementUpdaterTest(DUMMY_SETTINGS)
     """Test the result of running _check_user on non-overlapping engagements.
 
     Args:
