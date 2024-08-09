@@ -13,7 +13,7 @@ services:
       FASTRAMQPI__AUTH_REALM: "mo"
       FASTRAMQPI__AMQP__URL: "amqp://guest:guest@msg-broker:5672/"
 
-      AMQP_INTEGRATION: DEFAULT
+      INTEGRATION: DEFAULT
 
     networks:
       - os2mo_default
