@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Magenta ApS <https://magenta.dk>
 # SPDX-License-Identifier: MPL-2.0
 import structlog
+from fastramqpi.ramqp.depends import RateLimit
 from fastramqpi.ramqp.mo import MORouter
 from fastramqpi.ramqp.mo import PayloadUUID
 from more_itertools import only
@@ -18,6 +19,7 @@ async def calculate_engagement(
     engagement_uuid: PayloadUUID,
     mo: depends.GraphQLClient,
     updater: depends.Updater,
+    _: RateLimit,
 ) -> None:
     logger.info("Registered event for engagement", engagement_uuid=engagement_uuid)
     result = await mo.get_engagement_person(engagement_uuid)
