@@ -22,6 +22,9 @@ async def calculate_engagement(
     logger.info("Registered event for engagement", engagement_uuid=engagement_uuid)
     result = await mo.get_engagement_person(engagement_uuid)
     result = only(result.objects)
+    if result is None:
+        logger.info("No related person found.", engagement_uuid=engagement_uuid)
+        return
     uuids = {e.uuid for o in result.validities for e in o.person}
 
     logger.info("Found related person(s)", person_uuids=uuids)
