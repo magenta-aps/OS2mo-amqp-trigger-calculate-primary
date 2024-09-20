@@ -24,13 +24,12 @@ async def calculate_engagement(
     settings: depends.Settings,
     _: RateLimit,
 ) -> None:
+    await asyncio.sleep(settings.delay_amqp)
     logger.info(
-        "Registered event for engagement",
+        "Processing event for engagement",
         engagement_uuid=engagement_uuid,
         delay=settings.delay_amqp,
     )
-
-    await asyncio.sleep(settings.delay_amqp)
 
     result = await mo.get_engagement_person(engagement_uuid)
     result = only(result.objects)
