@@ -7,6 +7,7 @@ from uuid import UUID
 from fastramqpi.config import Settings as _FastRAMQPISettings
 from fastramqpi.ramqp.config import AMQPConnectionSettings as _AMQPConnectionSettings
 from pydantic import BaseSettings
+from pydantic import PositiveInt
 
 
 # https://git.magenta.dk/rammearkitektur/FastRAMQPI#multilayer-exchanges
@@ -30,3 +31,7 @@ class Settings(BaseSettings):
     integration: Literal["DEFAULT", "OPUS", "SD"]
     dry_run: bool = False
     eng_types_primary_order: list[UUID] = []
+
+    # Wait delay_amqp seconds before processing messages to help avoid race conditions
+    # between integrations (see motivation on https://redmine.magenta.dk/issues/61815)
+    delay_amqp: PositiveInt = 10
